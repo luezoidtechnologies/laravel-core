@@ -12,6 +12,7 @@ namespace Luezoid\Laravelcore\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Luezoid\Laravelcore\Rules\RequestSanitizer;
 
 class UtilityService
 {
@@ -91,5 +92,18 @@ class UtilityService
             CarbonInterval::week(),
             Carbon::parse("first $dayName of next month")
         );
+    }
+
+    public static function getRequestSanitizerNotRequiredRule($validationData = [])
+    {
+        $timestamp = time();
+        return new RequestSanitizer($validationData, [
+            ['keyName' => "key$timestamp", 'type' => 'value', 'value' => $timestamp]
+        ]);
+    }
+
+    public static function getModelTableName($model)
+    {
+        return (new $model)->getTable();
     }
 }
