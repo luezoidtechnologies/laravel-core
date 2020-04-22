@@ -12,7 +12,7 @@ namespace Luezoid\Laravelcore\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
-use Luezoid\Laravelcore\Rules\RequestSanitizer;
+use Illuminate\Support\Str;
 
 class UtilityService
 {
@@ -40,7 +40,7 @@ class UtilityService
             if (is_numeric($key)) {
                 $newKey = $key;
             } else {
-                $newKey = snake_case($key);
+                $newKey = Str::snake($key);
             }
             unset($inputs[$key]);
 
@@ -72,8 +72,8 @@ class UtilityService
     public static function camel_case($key)
     {
         $newKey = $key;
-        if (str_contains($key, '_')) {
-            $newKey = camel_case($key);
+        if (Str::contains($key, '_')) {
+            $newKey = Str::camel($key);
         }
         return $newKey;
     }

@@ -2,18 +2,17 @@
 
 namespace Luezoid\Laravelcore\Exceptions;
 
-use Luezoid\Laravelcore\Constants\ErrorConstants;
-use Luezoid\Laravelcore\Services\UtilityService;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Luezoid\Laravelcore\Constants\ErrorConstants;
+use Luezoid\Laravelcore\Services\UtilityService;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class Handler extends ExceptionHandler
-{
+class Handler extends ExceptionHandler {
     /**
      * A list of the exception types that should not be reported.
      *
@@ -37,8 +36,7 @@ class Handler extends ExceptionHandler
      * @return void
      * @throws Exception
      */
-    public function report(Exception $exception)
-    {
+    public function report(Exception $exception) {
         parent::report($exception);
     }
 
@@ -49,18 +47,17 @@ class Handler extends ExceptionHandler
      * @param  \Exception $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
-    {
-        $response = null;
+    public function render($request, Exception $exception) {
+        $errorResponse = null;
+        $statusCode = 500;
 
         if ($exception instanceof AppException) {
-
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Internal Server Error",
                 'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
                 'errorDetails' => $exception->getTrace()
-            ], $exception->getCode());
-
+            ];
+            $statusCode = $exception->getCode();
         } else if ($exception instanceof ValidationException) {
             $errorDetails = [];
             $error = $exception->getMessage();
@@ -69,78 +66,94 @@ class Handler extends ExceptionHandler
                 $error = $err->error;
                 $errorDetails = $err->errorDetails;
             }
-            $response = response()->json([
+            $errorResponse = [
                 'status' => 'fail',
                 'message' => array_merge([$error], $errorDetails),
                 'data' => null,
                 'type' => ErrorConstants::TYPE_VALIDATION_ERROR
-            ], 400);
+            ];
+            $statusCode = 400;
         } else if ($exception instanceof NotFoundHttpException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Resouce not found",
                 'type' => ErrorConstants::TYPE_RESOURCE_NOT_FOUND_ERROR,
                 'errorDetails' => "Resource not found"
-            ], 404);
+            ];
+            $statusCode = 404;
         } else if ($exception instanceof MethodNotAllowedHttpException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Method not allowed",
                 'type' => ErrorConstants::TYPE_METHOD_NOT_ALLOWED_ERROR,
                 'errorDetails' => "Method not allowed"
-            ], 405);
+            ];
+            $statusCode = 405;
         } else if ($exception instanceof InvalidCredentialsException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Invalid Credentials",
                 'type' => ErrorConstants::TYPE_INVALID_CREDENTIALS_ERROR,
                 'errorDetails' => $exception->getMessage()
-            ], 401);
+            ];
+            $statusCode = 401;
         } else if ($exception instanceof AuthorizationException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Authorization Failed",
                 'type' => ErrorConstants::TYPE_AUTHORIZATION_ERROR,
                 'errorDetails' => $exception->getMessage()
-            ], 403);
+            ];
+            $statusCode = 403;
         } else if ($exception instanceof ForbiddenException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Forbidden from performing action",
                 'type' => ErrorConstants::TYPE_FORBIDDEN_ERROR,
                 'errorDetails' => $exception->getMessage()
-            ], 403);
+            ];
+            $statusCode = 403;
         } else if ($exception instanceof ServiceNotImplementedException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Service Not Implemented",
                 'type' => ErrorConstants::TYPE_SERVICE_NOT_IMPLEMENTED_ERROR,
                 'errorDetails' => $exception->getMessage()
-            ], 501);
+            ];
+            $statusCode = 501;
         } else if ($exception instanceof BusinessLogicException) {
             $message = $exception->getMessage();
             if (UtilityService::is_json($exception->getMessage())) {
                 $message = json_decode($exception->getMessage());
             };
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($message) ? $message : "Business Logic Error",
                 'errorDetails' => $exception->getMessage(),
                 'type' => ErrorConstants::TYPE_BUSINESS_LOGIC_ERROR
-            ], $exception->getCode());
+            ];
+            $statusCode = $exception->getCode();
         } else if ($exception instanceof BadRequestHttpException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
                 'type' => ErrorConstants::TYPE_BAD_REQUEST_ERROR,
                 'errorDetails' => "Bad Request"
-            ], 400);
+            ];
+            $statusCode = 400;
         } else if ($exception instanceof ThrottleRequestsException) {
-            $response = response()->json([
+            $errorResponse = [
                 'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
                 'type' => ErrorConstants::TYPE_TOO_MANY_REQUEST_ERROR,
                 'errorDetails' => "Too many requests"
-            ], 429);
+            ];
+            $statusCode = 429;
         } else {
-            $response =   $response = response()->json([
+            $errorResponse = [
                 'error' => $exception->getMessage(),
                 'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
                 'errorDetails' => $exception->getTrace()
-            ], 500);
+            ];
+            $statusCode = 500;
         }
-        return $response;
+
+        if (!env('APP_DEBUG')) {
+            unset($errorResponse['errorDetails']);
+        }
+
+        return response()->json($errorResponse, $statusCode);
     }
 
 

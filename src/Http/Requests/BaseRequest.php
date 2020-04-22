@@ -27,7 +27,7 @@ abstract class BaseRequest extends FormRequest
      * The data to be validated should be processed as JSON.
      * @return mixed
      */
-    protected function validationData()
+    public function validationData()
     {
         $inputs = array_replace_recursive(
             $this->json()->all(),

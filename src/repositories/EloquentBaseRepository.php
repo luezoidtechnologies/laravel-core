@@ -11,11 +11,13 @@ namespace Luezoid\Laravelcore\Repositories;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Contracts\IBaseRepository;
 use Luezoid\Laravelcore\Exceptions\AppException;
 use Luezoid\Laravelcore\Services\UtilityService;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Support\Arr;
 
 class EloquentBaseRepository implements IBaseRepository
 {
@@ -121,7 +123,7 @@ class EloquentBaseRepository implements IBaseRepository
             $query = call_user_func_array([$this->model, 'with'], [$params['with']]);
         }
 
-        if (isset($params["inputs"]) && $where = array_only((array)$params["inputs"], $filterable))
+        if (isset($params["inputs"]) && $where = Arr::only((array)$params["inputs"], $filterable))
 
             $query = call_user_func_array([$query ? $query : $this->model, 'where'], [$where]);
 
@@ -144,7 +146,7 @@ class EloquentBaseRepository implements IBaseRepository
             $query = call_user_func_array([$this->model, 'with'], [$params['with']]);
         }
 
-        if (isset($params["inputs"]) && $where = array_only((array)$params["inputs"], $filterable))
+        if (isset($params["inputs"]) && $where = Arr::only((array)$params["inputs"], $filterable))
 
             $query = call_user_func_array([$query ? $query : $this->model, 'where'], [$where]);
 
@@ -164,7 +166,7 @@ class EloquentBaseRepository implements IBaseRepository
             $query = call_user_func_array([$this->model, 'with'], [$params['with']]);
         }
 
-        if ($where = array_only($params["inputs"], $searchable)) {
+        if ($where = Arr::only($params["inputs"], $searchable)) {
 
             foreach ($where as $param => $value) {
 
@@ -176,7 +178,7 @@ class EloquentBaseRepository implements IBaseRepository
                 }
             }
         }
-        if ($where = array_only($params["inputs"], $filterable)) {
+        if ($where = Arr::only($params["inputs"], $filterable)) {
             $query = $this->addWhereToGetAll($query, $where, $tableName);
         }
 
@@ -256,7 +258,7 @@ class EloquentBaseRepository implements IBaseRepository
                 $searchable = array_diff($_searchable, $filterable);
                 $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
                 $filter = [$relationKey => $value];
-                if ($where = array_only($filter, $searchable)) {
+                if ($where = Arr::only($filter, $searchable)) {
                     foreach ($where as $param => $value) {
                         if ($this->_checkInputValueType($value)) {
                             if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true)))) {
@@ -267,10 +269,10 @@ class EloquentBaseRepository implements IBaseRepository
                     }
                 }
 
-                if ($whereNullKeys = array_only($filter, $whereNullKeys)) {
+                if ($whereNullKeys = Arr::only($filter, $whereNullKeys)) {
                     $query = $this->addWhereNullToGetAll($query, $whereNullKeys, $tableName, $model);
                 }
-                if ($where = array_only($filter, $filterable)) {
+                if ($where = Arr::only($filter, $filterable)) {
                     $query = $this->addWhereToGetAll($query, $where, $tableName, $model);
                 }
             }
@@ -280,7 +282,7 @@ class EloquentBaseRepository implements IBaseRepository
     private function applyRelationFilters($model, $query, $inputs)
     {
         $relationFilters = [];
-        $selectFilters = array_get($inputs, 'select_filters', '[]');
+        $selectFilters = Arr::get($inputs, 'select_filters', '[]');
         if ($this->isJson($selectFilters)) {
             $selectFilters = json_decode($selectFilters, true);
             $selectFilters = UtilityService::fromCamelToSnake($selectFilters);
@@ -357,7 +359,7 @@ class EloquentBaseRepository implements IBaseRepository
         if (is_array($filters['k'] ?? null)) {
             $select = [];
             foreach ($filters['k'] as $k) {
-                array_push($select, snake_case($k));
+                array_push($select, Str::snake($k));
             }
             if (count($select)) {
                 $query->select($select);
@@ -395,7 +397,7 @@ class EloquentBaseRepository implements IBaseRepository
     {
         $searchKey = $params['inputs']['search_key'] ?? null;
         $searchOn = $params['inputs']['search_on'] ? json_decode($params['inputs']['search_on']) : null;
-        $selectFilters = array_get($params['inputs'], 'select_filters_mapping', '[]');
+        $selectFilters = Arr::get($params['inputs'], 'select_filters_mapping', '[]');
         if ($this->isJson($selectFilters)) {
             $selectFilters = json_decode($selectFilters, true);
         } else {
@@ -437,7 +439,7 @@ class EloquentBaseRepository implements IBaseRepository
 
 
         //use filter from inputs (?user_id=1&model=1389)
-        if ($where = array_only($params["inputs"], $searchable)) {
+        if ($where = Arr::only($params["inputs"], $searchable)) {
 
             foreach ($where as $param => $value) {
 
@@ -451,10 +453,10 @@ class EloquentBaseRepository implements IBaseRepository
             }
         }
 
-        if ($whereNullKeys = array_only($params["inputs"], $whereNullKeys)) {
+        if ($whereNullKeys = Arr::only($params["inputs"], $whereNullKeys)) {
             $query = $this->addWhereNullToGetAll($query, $whereNullKeys, $tableName);
         }
-        if ($where = array_only($params["inputs"], $filterable)) {
+        if ($where = Arr::only($params["inputs"], $filterable)) {
             $query = $this->addWhereToGetAll($query, $where, $tableName);
         }
 
@@ -476,8 +478,8 @@ class EloquentBaseRepository implements IBaseRepository
         }
 
         //if need paginate must set page (?page=1&perpage=5)
-        $page = intval(array_get($params['inputs'], 'page'));
-        $perpage = array_get($params['inputs'], 'perpage');
+        $page = intval(Arr::get($params['inputs'], 'page'));
+        $perpage = Arr::get($params['inputs'], 'perpage');
 
 
         //if set with

@@ -11,14 +11,11 @@ namespace Luezoid\Laravelcore\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request as Request;
+use Illuminate\Routing\Controller as BaseController;
 use Luezoid\Laravelcore\Constants\ErrorConstants;
-use Luezoid\Laravelcore\Exceptions\AppException;
-use Luezoid\Laravelcore\Exceptions\ValidationException;
 use Luezoid\Laravelcore\Jobs\BaseJob;
 use Luezoid\Laravelcore\Services\UtilityService;
-
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 
@@ -244,7 +241,7 @@ abstract class ApiController extends BaseController
 
     public function standardResponse($data, $message = null, $httpCode = 200, $type = null)
     {
-        if ($httpCode == 200 && $data && $this->isSnakeToCamel) {
+        if ($httpCode == 200 && $data && $this->isSnakeToCamel && is_array($data)) {
             $data = UtilityService::fromSnakeToCamel(json_decode(json_encode($data), true));
         }
         return response()->json([

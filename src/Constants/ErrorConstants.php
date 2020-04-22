@@ -12,6 +12,7 @@ namespace Luezoid\Laravelcore\Constants;
 class ErrorConstants
 {
 
+    const TYPE_INVALID_TOKEN_ERROR = 'INVALID_TOKEN';
     const TYPE_INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR';
     const TYPE_FORBIDDEN_ERROR = 'FORBIDDEN_ERROR';
     const TYPE_VALIDATION_ERROR = 'VALIDATION';

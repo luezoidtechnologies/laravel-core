@@ -18,13 +18,8 @@ use Image;
 use Intervention\Image\ImageManager;
 use Luezoid\Laravelcore\Constants\ErrorConstants;
 use Luezoid\Laravelcore\Contracts\IFile;
-use Luezoid\Laravelcore\Exceptions\AppException;
-use Luezoid\Laravelcore\Exceptions\ValidationException;
-use Luezoid\Laravelcore\Http\Controllers\ApiController;
-
 use Luezoid\Laravelcore\Repositories\FileRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\File\File as HTTPFILE;
 
 class FileController extends ApiController
 {
