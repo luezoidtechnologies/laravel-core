@@ -1,6 +1,6 @@
 # Laravel Core Package
-Luezoid provides a compact to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (we) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs.
-A few core features of using this package are:
+Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (our) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs creating process.
+A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#creating-crud)s.
  2. Pre-built support to define table columns which are to be specifically excluded before creating/updating a record.
  3. Pre-built Search & Filter queries ready to use with just configuring components.
@@ -16,7 +16,7 @@ A few core features of using this package are:
 ## Installation
 We recommend using [Composer](https://getcomposer.org) to install this package. This package supports [Laravel](https://laravel.com) versions >= 5.x.
 
-    composer require "luezoid/laravel-core"			# For latest version of Laravel (>=7.x)
+    composer require "luezoid/laravel-core"		# For latest version of Laravel (>=7.x)
     composer require "luezoid/laravel-core:^6.0"	# For Laravel version 6.x
     composer require "luezoid/laravel-core:^5.0"	# For Laravel version 5.x
 Next, configure your `app/Exceptions/Handler.php` and extend it with `Luezoid\Laravelcore\Exceptions\Handler`. Sample file can be seen [here](/examples/Exceptions/Handler.php).
