@@ -22,6 +22,7 @@ class LaravelcoreServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         $this->loadTranslationsFrom(__DIR__ . '/lang/errors.php', 'errors');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations/2019_10_03_101111_create_files_table.php');
     }
 
     /**
@@ -38,7 +39,7 @@ class LaravelcoreServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/config/file.php' => config_path('file.php'),
-        ], 'config');
+        ], 'luezoid-file-config');
         $this->app->alias(Laravelcore::class, 'luezoid-core');
         $this->app->alias(\Aws\Laravel\AwsFacade::class, 'AWS');
         $this->app->register(\Aws\Laravel\AwsServiceProvider::class);
