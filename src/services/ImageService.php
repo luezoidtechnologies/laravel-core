@@ -12,7 +12,8 @@ namespace Luezoid\Laravelcore\Services;
 use Exception;
 use Intervention\Image\Facades\Image;
 
-class ImageService {
+class ImageService
+{
 
     /**
      * @param $imageFilePath
@@ -20,7 +21,8 @@ class ImageService {
      * @return
      * @throws Exception
      */
-    public function compressImage($imageFilePath, $outputImagePath = null) {
+    public function compressImage($imageFilePath, $outputImagePath = null)
+    {
         if (!file_exists($imageFilePath)) {
             throw new Exception("File does not exist: $imageFilePath");
         }
@@ -64,7 +66,8 @@ class ImageService {
      * @param int $maxQuality
      * @throws Exception
      */
-    function compressPng($pathToPngFile, $compressedFile, $minQuality = 60, $maxQuality = 90) {
+    function compressPng($pathToPngFile, $compressedFile, $minQuality = 60, $maxQuality = 90)
+    {
         if (!file_exists($pathToPngFile)) {
             throw new Exception("File does not exist: $pathToPngFile");
         }
@@ -87,7 +90,8 @@ class ImageService {
      * @return
      * @throws Exception
      */
-    public function reSizeImage($imageFilePath, $outputImagePath, $width, $height) {
+    public function reSizeImage($imageFilePath, $outputImagePath, $width, $height)
+    {
         if (!file_exists($imageFilePath)) {
             throw new Exception("File does not exist: $imageFilePath");
         }

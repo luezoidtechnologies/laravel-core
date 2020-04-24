@@ -39,8 +39,8 @@ class FilesInitCommand extends Command
     {
         $fileConfig = config('file');
         foreach ($fileConfig['types'] ?? [] as $key => $config) {
-            if (isset($config['local_path']) && !file_exists(public_path().'/'.$config['local_path'])) {
-                mkdir(public_path().'/'.$config['local_path'], 0775, true);
+            if (isset($config['local_path']) && !file_exists(public_path() . '/' . $config['local_path'])) {
+                mkdir(public_path() . '/' . $config['local_path'], 0775, true);
             }
         }
     }

@@ -9,10 +9,10 @@
 namespace Luezoid\Laravelcore\Services;
 
 
-
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Str;
+use Luezoid\Laravelcore\Rules\RequestSanitizer;
 
 class UtilityService
 {
@@ -21,18 +21,6 @@ class UtilityService
         $data = json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE && $string && $string != $data) ? ($return_data ? $data : TRUE) : FALSE;
     }
-
-    public static function getFilePath($type)
-    {
-        $path = public_path();
-
-
-        $path .= '/resumes/';
-
-
-        return $path;
-    }
-
 
     public static function fromCamelToSnake($inputs)
     {

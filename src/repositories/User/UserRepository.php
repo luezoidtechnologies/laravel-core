@@ -9,7 +9,6 @@
 namespace Luezoid\Laravelcore\Repositories\User;
 
 
-
 use Luezoid\Laravelcore\Repositories\EloquentBaseRepository;
 
 class UserRepository extends EloquentBaseRepository

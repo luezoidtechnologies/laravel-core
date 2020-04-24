@@ -12,7 +12,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class Handler extends ExceptionHandler {
+class Handler extends ExceptionHandler
+{
     /**
      * A list of the exception types that should not be reported.
      *
@@ -36,7 +37,8 @@ class Handler extends ExceptionHandler {
      * @return void
      * @throws Exception
      */
-    public function report(\Throwable $exception) {
+    public function report(\Throwable $exception)
+    {
         parent::report($exception);
     }
 
@@ -47,7 +49,8 @@ class Handler extends ExceptionHandler {
      * @param \Throwable $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, \Throwable $exception) {
+    public function render($request, \Throwable $exception)
+    {
         $errorResponse = null;
         $statusCode = 500;
 

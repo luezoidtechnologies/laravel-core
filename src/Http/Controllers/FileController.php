@@ -24,6 +24,7 @@ use Ramsey\Uuid\Uuid;
 class FileController extends ApiController
 {
 
+    protected $repository = FileRepository::class;
     private $fileService;
 
     public function __construct(IFile $fileService)
@@ -31,9 +32,6 @@ class FileController extends ApiController
         parent::__construct();
         $this->fileService = $fileService;
     }
-
-    protected $repository = FileRepository::class;
-
 
     public function store(Request $request)
     {

@@ -15,5 +15,5 @@ class AuthorizationException extends \Exception
     {
         parent::__construct($message, $code);
     }
-    
+
 }

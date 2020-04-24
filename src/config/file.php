@@ -7,8 +7,6 @@
  */
 
 
-use Luezoid\Laravelcore\Models\File;
-
 return [
     'is_local' => false,
     'temp_path' => 'images/temp_path',

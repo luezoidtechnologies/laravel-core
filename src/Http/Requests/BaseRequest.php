@@ -39,15 +39,6 @@ abstract class BaseRequest extends FormRequest
     }
 
     /**
-     * Add extra variable(s) in the input request data. Can be used in any child Request Class.
-     * @param $array
-     */
-    protected function add($array)
-    {
-        $this->inputs = array_merge($this->inputs, $array);
-    }
-
-    /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator $validator
@@ -58,13 +49,22 @@ abstract class BaseRequest extends FormRequest
         return $this->getValidatorInstance();
     }
 
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
-        $this->validator = $validator;
-    }
-
     public function getEnvironmentId()
     {
         return $this->header('env_id', null);
+    }
+
+    /**
+     * Add extra variable(s) in the input request data. Can be used in any child Request Class.
+     * @param $array
+     */
+    protected function add($array)
+    {
+        $this->inputs = array_merge($this->inputs, $array);
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $this->validator = $validator;
     }
 }

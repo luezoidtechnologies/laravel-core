@@ -9,8 +9,8 @@
 namespace Luezoid\Laravelcore\Jobs;
 
 
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class BaseJob extends Job
 {
@@ -84,7 +84,7 @@ class BaseJob extends Job
 
         if ($this->transformer) {
             $transformer = app()->make($this->transformer);
-            if(!empty($this->dataToFetch)){
+            if (!empty($this->dataToFetch)) {
                 $transformer->setPropertiesToFetch($this->dataToFetch);
             }
             return $transformer->{$this->transformerMethod}($item);

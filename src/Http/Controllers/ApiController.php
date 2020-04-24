@@ -13,8 +13,10 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request as Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Luezoid\Laravelcore\Constants\ErrorConstants;
 use Luezoid\Laravelcore\Jobs\BaseJob;
+use Luezoid\Laravelcore\Services\EnvironmentService;
 use Luezoid\Laravelcore\Services\UtilityService;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
@@ -104,6 +106,22 @@ abstract class ApiController extends BaseController
         return $this->standardResponse($result);
     }
 
+    public function getLoggedInUserId()
+    {
+        return EnvironmentService::getLoggedInUserId();
+    }
+
+    public function standardResponse($data, $message = null, $httpCode = 200, $type = null)
+    {
+        if ($httpCode == 200 && $data && $this->isSnakeToCamel && is_array($data)) {
+            $data = UtilityService::fromSnakeToCamel(json_decode(json_encode($data), true));
+        }
+        return response()->json([
+            "message" => $message,
+            "data" => $data && method_exists($data, 'toArray') ? $data->toArray() : $data,
+            "type" => $type
+        ], $httpCode);
+    }
 
     /**
      * global show method  , return selected $id row from Specific Model
@@ -122,96 +140,6 @@ abstract class ApiController extends BaseController
         }
 
         return $this->standardResponse($result);
-    }
-
-    /**
-     * @param Request $request
-     * @return bool|\Illuminate\Http\JsonResponse
-     */
-    public function store(Request $request)
-    {
-        $this->defaultMessage = $this->resourceName ? $this->resourceName . " created successfully" : "Resource Created successfully";
-        $this->jobMethod = $this->storeJobMethod;
-        if (!$this->createJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
-
-        $data = array_replace_recursive(
-            $request->json()->all(),
-            $request->route()->parameters()
-        );
-
-        if ($this->storeRequest && $response = $this->validateRequest($this->storeRequest)) return $response;
-
-        if ($this->isCamelToSnake) {
-            $data = UtilityService::fromCamelToSnake($data);
-        }
-
-        $data = $this->requestSanitizer($data, 'createExcept');
-
-        return $this->executeJob($request, $this->createJob, [
-            'data' => $data,
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @param $id
-     * @return bool|\Illuminate\Http\JsonResponse
-     */
-    public function updateOverloadFunction(Request $request, $id)
-    {
-
-        $this->defaultMessage = $this->resourceName ? $this->resourceName . " updated successfully" : "Resource Updated successfully";
-        $this->jobMethod = $this->updateJobMethod;
-        if (!$this->updateJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
-
-        $data = array_replace_recursive(
-            $request->json()->all(),
-            $request->route()->parameters()
-        );
-        if ($this->updateRequest && $response = $this->validateRequest($this->updateRequest)) return $response;
-
-        if ($this->isCamelToSnake) {
-            $data = UtilityService::fromCamelToSnake($data);
-        }
-
-        $data = $this->requestSanitizer($data, 'updateExcept');
-
-
-        return $this->executeJob($request, $this->updateJob, [
-            'data' => $data,
-            'id' => $id
-        ]);
-    }
-
-    public function __call($method, $arguments)
-    {
-
-        if ($method == 'update') {
-            return $this->updateOverloadFunction(request(), end($arguments));
-        }
-
-        parent::__call($method, $arguments);
-    }
-
-
-    /**
-     * @param Request $request
-     * @param $id
-     * @return bool|\Illuminate\Http\JsonResponse
-     * @throws MethodNotAllowedHttpException
-     */
-    public function destroy(Request $request, $id)
-    {
-        $this->defaultMessage = $this->resourceName ? $this->resourceName . " deleted successfully" : "Resource deleted successfully";
-        $this->jobMethod = $this->deleteJobMethod;
-        if (!$this->deleteJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
-
-        if ($this->deleteRequest && $response = $this->validateRequest($this->deleteRequest)) return $response;
-
-        return $this->executeJob($request, $this->deleteJob, [
-            'id' => $id,
-            'data' => []
-        ]);
     }
 
     protected function validateRequest($method)
@@ -238,40 +166,32 @@ abstract class ApiController extends BaseController
 
     }
 
-
-    public function standardResponse($data, $message = null, $httpCode = 200, $type = null)
+    /**
+     * @param Request $request
+     * @return bool|\Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
     {
-        if ($httpCode == 200 && $data && $this->isSnakeToCamel && is_array($data)) {
-            $data = UtilityService::fromSnakeToCamel(json_decode(json_encode($data), true));
+        $this->defaultMessage = $this->resourceName ? $this->resourceName . " created successfully" : "Resource Created successfully";
+        $this->jobMethod = $this->storeJobMethod ?? 'create';
+        if (!$this->createJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
+
+        $data = array_replace_recursive(
+            $request->json()->all(),
+            $request->route()->parameters()
+        );
+
+        if ($this->storeRequest && $response = $this->validateRequest($this->storeRequest)) return $response;
+
+        if ($this->isCamelToSnake) {
+            $data = UtilityService::fromCamelToSnake($data);
         }
-        return response()->json([
-            "message" => $message,
-            "data" => $data && method_exists($data, 'toArray') ? $data->toArray() : $data,
-            "type" => $type
-        ], $httpCode);
-    }
 
-    public function getUserByToken()
-    {
+        $data = $this->requestSanitizer($data, 'createExcept');
 
-        return null;
-    }
-
-
-    public function getLoggedInUser()
-    {
-        return null;
-    }
-
-    public function getLoggedInUserId()
-    {
-        $user = $this->getLoggedInUser();
-        return !is_null($user) ? $user->id : null;
-    }
-
-    protected function notImplemented($data, $message = null)
-    {
-        return $this->standardResponse($data, $message);
+        return $this->executeJob($request, $this->createJob, [
+            'data' => $data,
+        ]);
     }
 
     private function requestSanitizer($data, $modelKey)
@@ -290,6 +210,102 @@ abstract class ApiController extends BaseController
         }
 
         return $data;
+    }
+
+    protected function executeJob($request, $jobClass, $params)
+    {
+        $job = new $jobClass($params);
+
+        if ($jobClass === BaseJob::class) {
+            $job->method = $this->jobMethod;
+            $job->event = $this->jobEvent;
+            $job->repository = $this->jobRepository ? $this->jobRepository : $this->repository;
+        }
+
+        return $this->dispatchJob($request, $job, $params);
+
+    }
+
+    protected function dispatchJob($request, $job, $params)
+    {
+        $result = $this->dispatch($job);
+        return $this->standardResponse($result, $this->customMessage ? $this->customMessage : $this->defaultMessage);
+    }
+
+    public function __call($method, $arguments)
+    {
+
+        if ($method == 'update') {
+            return $this->updateOverloadFunction(request(), end($arguments));
+        }
+
+        parent::__call($method, $arguments);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return bool|\Illuminate\Http\JsonResponse
+     */
+    public function updateOverloadFunction(Request $request, $id)
+    {
+
+        $this->defaultMessage = $this->resourceName ? $this->resourceName . " updated successfully" : "Resource Updated successfully";
+        $this->jobMethod = $this->updateJobMethod ?? 'update';
+        if (!$this->updateJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
+
+        $data = array_replace_recursive(
+            $request->json()->all(),
+            $request->route()->parameters()
+        );
+        if ($this->updateRequest && $response = $this->validateRequest($this->updateRequest)) return $response;
+
+        if ($this->isCamelToSnake) {
+            $data = UtilityService::fromCamelToSnake($data);
+        }
+
+        $data = $this->requestSanitizer($data, 'updateExcept');
+
+
+        return $this->executeJob($request, $this->updateJob, [
+            'data' => $data,
+            'id' => $id
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return bool|\Illuminate\Http\JsonResponse
+     * @throws MethodNotAllowedHttpException
+     */
+    public function destroy(Request $request, $id)
+    {
+        $this->defaultMessage = $this->resourceName ? $this->resourceName . " deleted successfully" : "Resource deleted successfully";
+        $this->jobMethod = $this->deleteJobMethod ?? 'delete';
+        if (!$this->deleteJob) throw new MethodNotAllowedHttpException(['message' => 'Method Not Allowed', 'code' => 405]);
+
+        if ($this->deleteRequest && $response = $this->validateRequest($this->deleteRequest)) return $response;
+
+        return $this->executeJob($request, $this->deleteJob, [
+            'id' => $id,
+            'data' => []
+        ]);
+    }
+
+    public function getUserByToken()
+    {
+
+        $user = Auth::user();
+        if (!$user) {
+            return $this->standardResponse(null, "Invalid token. No user found.", 401);
+        }
+        return $user;
+    }
+
+    public function getLoggedInUser()
+    {
+        return EnvironmentService::getLoggedInUser();
     }
 
     /**
@@ -357,24 +373,8 @@ abstract class ApiController extends BaseController
         return $this->executeJob($request, $job, $params);
     }
 
-
-    protected function executeJob($request, $jobClass, $params)
+    protected function notImplemented($data, $message = null)
     {
-        $job = new $jobClass($params);
-
-        if ($jobClass === BaseJob::class) {
-            $job->method = $this->jobMethod;
-            $job->event = $this->jobEvent;
-            $job->repository = $this->jobRepository ? $this->jobRepository : $this->repository;
-        }
-
-        return $this->dispatchJob($request, $job, $params);
-
-    }
-
-    protected function dispatchJob($request, $job, $params)
-    {
-        $result = $this->dispatch($job);
-        return $this->standardResponse($result, $this->customMessage ? $this->customMessage : $this->defaultMessage);
+        return $this->standardResponse($data, $message);
     }
 }

@@ -9,6 +9,7 @@
 namespace Luezoid\Laravelcore\Repositories;
 
 use Dotenv\Exception\ValidationException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -17,7 +18,6 @@ use Luezoid\Laravelcore\Exceptions\AppException;
 use Luezoid\Laravelcore\Services\UtilityService;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Support\Arr;
 
 class EloquentBaseRepository implements IBaseRepository
 {
@@ -32,19 +32,6 @@ class EloquentBaseRepository implements IBaseRepository
     public $selectFilterType = self::SELECT_FILTER_TYPE_WHERE_HAS;
 
     protected $indexTransformer;
-
-    /**
-     * @array $data
-     */
-    public function create($data)
-    {
-        $item = call_user_func_array([$this->model, 'create'], [$data["data"]]);
-        if (method_exists($this, 'afterCreate')) {
-            $this->afterCreate($item, $data);
-        }
-
-        return $item;
-    }
 
     /**
      * @param $data
@@ -84,6 +71,23 @@ class EloquentBaseRepository implements IBaseRepository
             $this->afterUpdate($item, $data);
 
         return $item;
+    }
+
+    public function find($id, $params = null)
+    {
+        $query = null;
+        $_model = new $this->model;
+        $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
+
+        if (isset($params["with"]) && count($params["with"])) {
+            $query = call_user_func_array([$this->model, 'with'], [$params['with']]);
+        }
+
+        if (isset($params["inputs"]) && $where = Arr::only((array)$params["inputs"], $filterable))
+
+            $query = call_user_func_array([$query ? $query : $this->model, 'where'], [$where]);
+
+        return call_user_func_array([$query ? $query : $this->model, 'find'], isset($params['columns']) ? [$id, $params['columns']] : [$id]);
     }
 
     /**
@@ -136,23 +140,6 @@ class EloquentBaseRepository implements IBaseRepository
         return $data;
     }
 
-    public function find($id, $params = null)
-    {
-        $query = null;
-        $_model = new $this->model;
-        $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
-
-        if (isset($params["with"]) && count($params["with"])) {
-            $query = call_user_func_array([$this->model, 'with'], [$params['with']]);
-        }
-
-        if (isset($params["inputs"]) && $where = Arr::only((array)$params["inputs"], $filterable))
-
-            $query = call_user_func_array([$query ? $query : $this->model, 'where'], [$where]);
-
-        return call_user_func_array([$query ? $query : $this->model, 'find'], isset($params['columns']) ? [$id, $params['columns']] : [$id]);
-    }
-
     public function findByParamValue($params, $first = true)
     {
         $query = null;
@@ -191,23 +178,15 @@ class EloquentBaseRepository implements IBaseRepository
         return $query;
     }
 
-    public function findOrCreate($object)
+    public function _checkInputValueType($value)
     {
-        $obj = $this->filter($object)->first();
-
-        if (!$obj) {
-            $obj = $this->create(["data" => $object]);
-        }
-
-
-        return $obj;
-
+        return is_string($value) ? strlen($value) : !empty($value);
     }
 
-
-    public function updateAll($condition, $update, $in = false)
+    public function isJson($str)
     {
-        return call_user_func_array([$this->model, 'where' . ($in ? 'In' : '')], $in ? $condition : [$condition])->update($update);
+        $json = json_decode($str);
+        return $json && $str != $json;
     }
 
     private function addWhereToGetAll($query, $params, $tableName, $model = null)
@@ -224,173 +203,40 @@ class EloquentBaseRepository implements IBaseRepository
         return $query;
     }
 
-
-    private function addWhereNullToGetAll($query, $keys, $tableName, $model = null)
+    public function findOrCreate($object)
     {
+        $obj = $this->filter($object)->first();
 
-        foreach ($keys as $key => $value) {
-            $query = call_user_func_array([$query ? $query : $model ?? $this->model, 'whereNull'], [($tableName ? $tableName . '.' . $key : $key)]);
+        if (!$obj) {
+            $obj = $this->create(["data" => $object]);
         }
-        return $query;
+
+
+        return $obj;
+
     }
 
-
-    private function applyFilters(&$query, $filters, $model)
+    public function filter($data, $first = false, $fields = [])
     {
-        $_model = new $model;
-        foreach ($filters as $relationKey => $value) {
-            if (is_array($value)) {
-                if ($this->selectFilterType == 'whereHas') {
-                    $query->{$this->selectFilterType}($relationKey, function ($q) use ($relationKey, $value, $_model) {
-                        $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyFilters($q, $value, $relationKeyClass);
-                    });
-                } else {
-                    $query->{$this->selectFilterType}([$relationKey => function ($q) use ($relationKey, $value, $_model) {
-                        $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyFilters($q, $value, $relationKeyClass);
-                    }]);
-                }
-            } else {
-                $tableName = $_model->getTable();
-                $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : ['created_at', 'updated_at'];
-                $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($tableName);
-                $searchable = array_diff($_searchable, $filterable);
-                $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
-                $filter = [$relationKey => $value];
-                if ($where = Arr::only($filter, $searchable)) {
-                    foreach ($where as $param => $value) {
-                        if ($this->_checkInputValueType($value)) {
-                            if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true)))) {
-                                $query = call_user_func_array([$query ? $query : $model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value]);
-                            } else
-                                $query = call_user_func_array([$query ? $query : $model, 'where'], [($tableName ? $tableName . '.' . $param : $param), 'like', '%' . $value . '%']);
-                        }
-                    }
-                }
-
-                if ($whereNullKeys = Arr::only($filter, $whereNullKeys)) {
-                    $query = $this->addWhereNullToGetAll($query, $whereNullKeys, $tableName, $model);
-                }
-                if ($where = Arr::only($filter, $filterable)) {
-                    $query = $this->addWhereToGetAll($query, $where, $tableName, $model);
-                }
-            }
-        }
+        return call_user_func_array([call_user_func_array([$this->model, 'where'], [$data]), $first ? 'first' : 'get'], $first || !$fields ? [] : [$fields]);
     }
 
-    private function applyRelationFilters($model, $query, $inputs)
+    /**
+     * @array $data
+     */
+    public function create($data)
     {
-        $relationFilters = [];
-        $selectFilters = Arr::get($inputs, 'select_filters', '[]');
-        if ($this->isJson($selectFilters)) {
-            $selectFilters = json_decode($selectFilters, true);
-            $selectFilters = UtilityService::fromCamelToSnake($selectFilters);
-        } else {
-            $selectFilters = [];
+        $item = call_user_func_array([$this->model, 'create'], [$data["data"]]);
+        if (method_exists($this, 'afterCreate')) {
+            $this->afterCreate($item, $data);
         }
-        unset($inputs['select_filters']);
-        foreach ($inputs as $key => $value) {
-            if (strpos($key, '->') == false) {
-                continue;   // not adding base keys
-            }
-            $keysArray = explode('->', $key);   // exploding
-            $lastRelation = &$relationFilters;          // initially setting lastRelation to blank array as reference
-            $lastRelationModel = $model;        // TODO optimize this as common model is still getting validated again
-            $keysCount = count($keysArray) - 1;
-            foreach ($keysArray as $index => $relation) {
-                if ($keysCount != $index) {
-                    if (!method_exists($lastRelationModel, $relation)) {
-                        throw new BadRequestHttpException("Invalid relation in query params: $relation");
-                        continue;
-                    }
-                    $lastRelationModel = get_class((new $lastRelationModel)->{$relation}()->getRelated());
-                }
-                if (!($lastRelation[$relation] ?? false)) {
-                    $lastRelation[$relation] = [];  // adding relation if not exist
-                }
-                $lastRelation = &$lastRelation[$relation];  // moving pointer ahead to point & add to the last node
-            }
-            $lastRelation = $value;         // at last setting the last node with the value provided in input
-            unset($lastRelation);           // unsetting the variable
-        }
-        $this->applyFilters($query, $relationFilters, $this->model);
 
-        // populating $selectFilters as per relation filters
-        $this->populateWhereConditionsForSelectFilters($relationFilters, $selectFilters);
-
-        // applying select filters
-        $this->applySelectFilters($query, $selectFilters);
+        return $item;
     }
 
-    protected function populateWhereConditionsForSelectFilters($relationFilters, &$selectFilters)
+    public function updateAll($condition, $update, $in = false)
     {
-        foreach ($relationFilters as $relationKey => $relationValue) {
-            if (is_array($relationValue)) {
-                if (!isset($selectFilters['k'])) {
-                    $selectFilters['k'] = [];
-                }
-                if (!isset($selectFilters['r'])) {
-                    $selectFilters['r'] = [];
-                }
-                if (!isset($selectFilters['c_only'])) {
-                    $selectFilters['c_only'] = false;
-                }
-                if (!isset($selectFilters['r'][$relationKey])) {
-                    $selectFilters['r'][$relationKey] = [
-                        'k' => [],
-                        'r' => null,
-                        'c' => null,
-                        'c_only' => false
-                    ];
-                }
-                $this->populateWhereConditionsForSelectFilters($relationValue, $selectFilters['r'][$relationKey]);
-            } else {
-                if (!isset($selectFilters['c'])) {
-                    $selectFilters['c'] = [];
-                }
-                $selectFilters['c'] = array_merge($selectFilters['c'], [$relationKey => $relationValue]);
-            }
-        }
-    }
-
-    protected function applySelectFilters(&$query, $filters, $relation = null)
-    {
-        if (is_array($filters['k'] ?? null)) {
-            $select = [];
-            foreach ($filters['k'] as $k) {
-                array_push($select, Str::snake($k));
-            }
-            if (count($select)) {
-                $query->select($select);
-            }
-        }
-        if ($filters['c'] ?? false) {
-            $where = [];
-            foreach ($filters['c'] as $key => $value) {
-                if ($this->isJson($value) && ($value = json_decode($value, true))) {
-                    $query->whereIn($key, $value);
-                } else {
-                    array_push($where, [$key, $value]);
-                }
-            }
-            if (count($where)) {
-                $query->where($where);
-            }
-        }
-        if (!is_null($filters['r'] ?? null) && is_array($filters['r'] ?? [])) {
-            foreach ($filters['r'] as $relation => $filter) {
-                if ($filter['c_only'] ?? false) {
-                    $query->withCount($relation);
-                } else {
-                    $query->with([
-                        $relation => function ($q) use ($filter, $relation) {
-                            $this->applySelectFilters($q, $filter, $relation);
-                        }
-                    ]);
-                }
-            }
-        }
+        return call_user_func_array([$this->model, 'where' . ($in ? 'In' : '')], $in ? $condition : [$condition])->update($update);
     }
 
     public function search($searchConfig, $params = [])
@@ -507,17 +353,175 @@ class EloquentBaseRepository implements IBaseRepository
 
     }
 
-    public function _checkInputValueType($value)
+    private function applyRelationFilters($model, $query, $inputs)
     {
-        return is_string($value) ? strlen($value) : !empty($value);
+        $relationFilters = [];
+        $selectFilters = Arr::get($inputs, 'select_filters', '[]');
+        if ($this->isJson($selectFilters)) {
+            $selectFilters = json_decode($selectFilters, true);
+            $selectFilters = UtilityService::fromCamelToSnake($selectFilters);
+        } else {
+            $selectFilters = [];
+        }
+        unset($inputs['select_filters']);
+        foreach ($inputs as $key => $value) {
+            if (strpos($key, '->') == false) {
+                continue;   // not adding base keys
+            }
+            $keysArray = explode('->', $key);   // exploding
+            $lastRelation = &$relationFilters;          // initially setting lastRelation to blank array as reference
+            $lastRelationModel = $model;        // TODO optimize this as common model is still getting validated again
+            $keysCount = count($keysArray) - 1;
+            foreach ($keysArray as $index => $relation) {
+                if ($keysCount != $index) {
+                    if (!method_exists($lastRelationModel, $relation)) {
+                        throw new BadRequestHttpException("Invalid relation in query params: $relation");
+                        continue;
+                    }
+                    $lastRelationModel = get_class((new $lastRelationModel)->{$relation}()->getRelated());
+                }
+                if (!($lastRelation[$relation] ?? false)) {
+                    $lastRelation[$relation] = [];  // adding relation if not exist
+                }
+                $lastRelation = &$lastRelation[$relation];  // moving pointer ahead to point & add to the last node
+            }
+            $lastRelation = $value;         // at last setting the last node with the value provided in input
+            unset($lastRelation);           // unsetting the variable
+        }
+        $this->applyFilters($query, $relationFilters, $this->model);
+
+        // populating $selectFilters as per relation filters
+        $this->populateWhereConditionsForSelectFilters($relationFilters, $selectFilters);
+
+        // applying select filters
+        $this->applySelectFilters($query, $selectFilters);
     }
 
-    public function filter($data, $first = false, $fields = [])
+    private function applyFilters(&$query, $filters, $model)
     {
-        return call_user_func_array([call_user_func_array([$this->model, 'where'], [$data]), $first ? 'first' : 'get'], $first || !$fields ? [] : [$fields]);
+        $_model = new $model;
+        foreach ($filters as $relationKey => $value) {
+            if (is_array($value)) {
+                if ($this->selectFilterType == 'whereHas') {
+                    $query->{$this->selectFilterType}($relationKey, function ($q) use ($relationKey, $value, $_model) {
+                        $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
+                        $this->applyFilters($q, $value, $relationKeyClass);
+                    });
+                } else {
+                    $query->{$this->selectFilterType}([$relationKey => function ($q) use ($relationKey, $value, $_model) {
+                        $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
+                        $this->applyFilters($q, $value, $relationKeyClass);
+                    }]);
+                }
+            } else {
+                $tableName = $_model->getTable();
+                $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : ['created_at', 'updated_at'];
+                $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($tableName);
+                $searchable = array_diff($_searchable, $filterable);
+                $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
+                $filter = [$relationKey => $value];
+                if ($where = Arr::only($filter, $searchable)) {
+                    foreach ($where as $param => $value) {
+                        if ($this->_checkInputValueType($value)) {
+                            if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true)))) {
+                                $query = call_user_func_array([$query ? $query : $model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value]);
+                            } else
+                                $query = call_user_func_array([$query ? $query : $model, 'where'], [($tableName ? $tableName . '.' . $param : $param), 'like', '%' . $value . '%']);
+                        }
+                    }
+                }
+
+                if ($whereNullKeys = Arr::only($filter, $whereNullKeys)) {
+                    $query = $this->addWhereNullToGetAll($query, $whereNullKeys, $tableName, $model);
+                }
+                if ($where = Arr::only($filter, $filterable)) {
+                    $query = $this->addWhereToGetAll($query, $where, $tableName, $model);
+                }
+            }
+        }
+    }
+
+    private function addWhereNullToGetAll($query, $keys, $tableName, $model = null)
+    {
+
+        foreach ($keys as $key => $value) {
+            $query = call_user_func_array([$query ? $query : $model ?? $this->model, 'whereNull'], [($tableName ? $tableName . '.' . $key : $key)]);
+        }
+        return $query;
+    }
+
+    protected function populateWhereConditionsForSelectFilters($relationFilters, &$selectFilters)
+    {
+        foreach ($relationFilters as $relationKey => $relationValue) {
+            if (is_array($relationValue)) {
+                if (!isset($selectFilters['k'])) {
+                    $selectFilters['k'] = [];
+                }
+                if (!isset($selectFilters['r'])) {
+                    $selectFilters['r'] = [];
+                }
+                if (!isset($selectFilters['c_only'])) {
+                    $selectFilters['c_only'] = false;
+                }
+                if (!isset($selectFilters['r'][$relationKey])) {
+                    $selectFilters['r'][$relationKey] = [
+                        'k' => [],
+                        'r' => null,
+                        'c' => null,
+                        'c_only' => false
+                    ];
+                }
+                $this->populateWhereConditionsForSelectFilters($relationValue, $selectFilters['r'][$relationKey]);
+            } else {
+                if (!isset($selectFilters['c'])) {
+                    $selectFilters['c'] = [];
+                }
+                $selectFilters['c'] = array_merge($selectFilters['c'], [$relationKey => $relationValue]);
+            }
+        }
     }
 
     //prepare result for paginate select
+
+    protected function applySelectFilters(&$query, $filters, $relation = null)
+    {
+        if (is_array($filters['k'] ?? null)) {
+            $select = [];
+            foreach ($filters['k'] as $k) {
+                array_push($select, Str::snake($k));
+            }
+            if (count($select)) {
+                $query->select($select);
+            }
+        }
+        if ($filters['c'] ?? false) {
+            $where = [];
+            foreach ($filters['c'] as $key => $value) {
+                if ($this->isJson($value) && ($value = json_decode($value, true))) {
+                    $query->whereIn($key, $value);
+                } else {
+                    array_push($where, [$key, $value]);
+                }
+            }
+            if (count($where)) {
+                $query->where($where);
+            }
+        }
+        if (!is_null($filters['r'] ?? null) && is_array($filters['r'] ?? [])) {
+            foreach ($filters['r'] as $relation => $filter) {
+                if ($filter['c_only'] ?? false) {
+                    $query->withCount($relation);
+                } else {
+                    $query->with([
+                        $relation => function ($q) use ($filter, $relation) {
+                            $this->applySelectFilters($q, $filter, $relation);
+                        }
+                    ]);
+                }
+            }
+        }
+    }
+
     public function result_for_paginate($collection)
     {
         return [
@@ -527,12 +531,6 @@ class EloquentBaseRepository implements IBaseRepository
             "pages" => $collection->lastPage(),
             "perpage" => $collection->perPage()
         ];
-    }
-
-    public function isJson($str)
-    {
-        $json = json_decode($str);
-        return $json && $str != $json;
     }
 
     /**

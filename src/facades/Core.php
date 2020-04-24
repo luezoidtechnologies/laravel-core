@@ -9,7 +9,6 @@
 namespace Luezoid\Laravelcore\Facades;
 
 
-
 use Illuminate\Support\Facades\Facade;
 
 class Laravelcore extends Facade
