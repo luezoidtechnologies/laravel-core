@@ -1,14 +1,14 @@
 # Laravel Core Package
 Luezoid provides a compact to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (we) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs.
 A few core features of using this package are:
- 1. Simplest & fastest way to create CRUDs.
+ 1. Simplest & fastest way to create [CRUD](#creating-crud)s.
  2. Pre-built support to define table columns which are to be specifically excluded before creating/updating a record.
  3. Pre-built Search & Filter queries ready to use with just configuring components.
  4. Pre-built Pagination ready.
  5. Relationship's data in the APIs is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
  7. File uploads has never been easy before.
- 8. Pre-built feature rich Service classes eg. [EnvironmentService](#), [RequestService](#), [UtilityService](#), etc.
+ 8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
  10. On the go filters can be passed as JSON in query params to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
  11. On the go searching over the related objects with simple Array based config. Much more effective when a generic search has to be made over a couple of related tables.
@@ -26,6 +26,7 @@ Using this packages adds an extra entity between the Controller & Model paradigm
 By using **Repository** as an intermediate between **Controller** & **Model**, we aim at maintaing clean code at **Controller's** end and making it a mediator which only receives data(from View, typically a REST route), validate it against the defined validation rules(if any, we uses **Request** class to define such rules), pre-process it(for eg. transform ***camelCased*** data from front-end into ***snake_case***) & sending business cooked data back the View.
 
 Let's start with creating a simple **Minions** CRUD.
+
 We have sample [migration](examples/migrations/2020_04_24_175321_create_minions_table.php) for table `minions`, model [`Minion`](/examples/Models/Minion.php), controller [`MinionController`](/examples/Controllers/MinionController.php) and repository [`MinionRepository`](/examples/Repositories/MinionRepository.php).
 Create a Route resource as below and we are all ready:
 
@@ -44,7 +45,6 @@ Try hitting REST call:
 	    	"favouriteSound": "Grrrrrrrrrrr",
 	    	"hasHairs": true
 	    }'
-	    
 
  2. PUT /minions/1
 
@@ -74,7 +74,7 @@ Try hitting REST call:
  5. GET /minions/1
 
 	    curl -X GET \
-	      http://localhost:8000/api/minions/2 \
+	      http://localhost:7872/api/minions/2 \
 	      -H 'cache-control: no-cache'
 
   
