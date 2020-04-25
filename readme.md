@@ -30,7 +30,7 @@ By using **Repository** as an intermediate between **Controller** & **Model**, w
 Let's start with creating a simple **Minions** CRUD.
 
 We have sample [migration](examples/migrations/2020_04_24_175321_create_minions_table.php) for table `minions`, model [`Minion`](/examples/Models/Minion.php), controller [`MinionController`](/examples/Controllers/MinionController.php) and repository [`MinionRepository`](/examples/Repositories/MinionRepository.php).
-Add these files into your application & adjust the namespaces accordingly. Then create a Route resource as below and we are all ready:
+Add these files into your application & adjust the namespaces accordingly. Then create a Route resource as below in [`routes/api.php`](examples/routes/api.php) and we are all ready:
 
     Route::resource('minions', 'MinionController', ['parameters' => ['minions' => 'id']]);
 Assuming your local server is running on port: 7872, try hitting REST endpoints as below:
@@ -177,9 +177,9 @@ That's it. Just a config thingy & you can see in the response each **Minion** ob
 > Note: For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
 
 ## 6. Attach Event on an action success
-Let's arrange an [Event](#) to get triggered to bring a **Minion** to **Gru's** lab whenever a new [`Mission`](examples/Models/Mission.php) is created leading by the **Minion**. Create a POST route:
+Let's arrange an [Event](#) to get triggered to bring a **Minion** to **Gru's** lab whenever a new [`Mission`](examples/Models/Mission.php) is created leading by the **Minion**. Create a POST route in [`routes/api.php`](examples/routes/api.php):
 
-`Route::post('missions', 'MissionController@createMission')->name('missions.store');`
+    Route::post('missions', 'MissionController@createMission')->name('missions.store');
 
 We need to have [`MissionController`](examples/Controllers/MissionController.php), [`MissionRepository`](examples/Repositories/MissionRepository.php), [`MissionCreateRequest`](examples/Requests/MissionCreateRequest.php) and [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) ready for this route to work.
 Also we need to have an Event say [`BringMinionToLabEvent`](examples/Events/BringMinionToLabEvent.php) ready to be triggered & the same to be configured into job [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) under property `public $event = BringMinionToLabEvent::class;`

@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Minion $lead_by
  * @property Collection|Minion[] $minions
  *
- * @package App\Models
+ * @package Luezoid\Models
  */
 class Mission extends Model
 {

@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Minion $minion
  * @property Mission $mission
  *
- * @package App\Models
+ * @package Luezoid\Models
  */
 class MinionMissionMapping extends Model
 {
