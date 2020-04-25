@@ -7,7 +7,7 @@ A few cool features of this package are:
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
  4. Pre-built [Pagination](#4-pagination) ready.
  5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
- 6. Better way to correctly [fire an event](#6-attach-event-on-an-action) upon successful completion of an action.
+ 6. Better way to correctly [fire an event](#6-attach-event-on-an-action-success) upon successful completion of an action.
  7. File uploads has never been easy before.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
@@ -176,9 +176,11 @@ That's it. Just a config thingy & you can see in the response each **Minion** ob
 
 > Note: For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
 
-## 6. Attach Event on an action
+## 6. Attach Event on an action success
 Let's arrange an [Event](#) to get triggered to bring a **Minion** to **Gru's** lab whenever a new [`Mission`](examples/Models/Mission.php) is created leading by the **Minion**. Create a POST route:
+
 `Route::post('missions', 'MissionController@createMission')->name('missions.store');`
+
 We need to have [`MissionController`](examples/Controllers/MissionController.php), [`MissionRepository`](examples/Repositories/MissionRepository.php), [`MissionCreateRequest`](examples/Requests/MissionCreateRequest.php) and [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) ready for this route to work.
 Also we need to have an Event say [`BringMinionToLabEvent`](examples/Events/BringMinionToLabEvent.php) ready to be triggered & the same to be configured into job [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) under property `public $event = BringMinionToLabEvent::class;`
 Now try hitting the route POST /missions as follows:
