@@ -1,0 +1,14 @@
+{
+  "message": "File uploaded successfully",
+  "data": {
+    "type": "EXAMPLE",
+    "name": "a61113f5afc5ad52eb59f98ce293c266.jpg",
+    "localPath": "storage/examples/114f0e9c-cb8f-4585-9d70-63fc6eaccd19.jpg",
+    "s3Key": null,
+    "updatedAt": "2020-04-25T18:52:25.000000Z",
+    "createdAt": "2020-04-25T18:52:25.000000Z",
+    "id": 1,
+    "url": "http://localhost:7872/storage/examples/114f0e9c-cb8f-4585-9d70-63fc6eaccd19.jpg"
+  },
+  "type": null
+}

@@ -8,7 +8,7 @@ A few cool features of this package are:
  4. Pre-built [Pagination](#4-pagination) ready.
  5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
  6. Better way to correctly [fire an event](#6-attach-event-on-an-action-success) upon successful completion of an action.
- 7. File uploads has never been easy before.
+ 7. [File uploads](#7-file-upload) has never been so easy before. Upload to local filesystem or AWS S3 bucket on the go.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
  10. On the go filters can be passed as JSON in query params to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
@@ -195,6 +195,39 @@ Now try hitting the route POST /missions as follows:
     	"minionId": 2
     }'
 You should be able to see a log entry under file `storage/logs/laravel.log` which is the action we had set in the event [`BringMinionToLabEvent`](examples/Events/BringMinionToLabEvent.php).
+## 7. File Upload
+With this package, file upload is just a config thing away.
+Publish the [`file.php`](src/config/file.php) configuration file to the config directory with below command:
+
+	php artisan vendor:publish --tag=luezoid-file-config
+Configure the new `type` representing a specific module eg. **MINION_PROFILE_PICTURE** as per your requirement, define the `validation`(if any), `valid_file_types` allowed, `local_path`(for local filesystem), etc. A sample `type` named **EXAMPLE** is added by default for reference.
+Next, add the below code in `AppServiceProvide`:
+
+	$this->app->bind(\Luezoid\Laravelcore\Contracts\IFile::class, function ($app) {
+		if (config('file.is_local')) {
+			return $app->make(\Luezoid\Laravelcore\Files\Services\LocalFileUploadService::class);
+		}
+		return $app->make(\Luezoid\Laravelcore\Files\Services\SaveFileToS3Service::class);
+	});
+Next, create a route as below:
+
+	Route::post('files', '\Luezoid\Laravelcore\Http\Controllers\FileController@store')->name('files.store');
+Now, you are all set to upload files.
+
+    curl -X POST \
+      http://localhost:7872/api/files \
+      -H 'cache-control: no-cache' \
+      -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
+      -F type=EXAMPLE \
+      -F file=@/home/choxx/Desktop/a61113f5afc5ad52eb59f98ce293c266.jpg
+The response body will have an `id`, `url`, and a few other fields representing the storage location & other details for the uploaded file. See sample [here](examples/Responses/file-upload-response.json). This `id` field you could use to store in your table as foreign key column & make `hasOne()` relation with the records & use them as per need.
+
+Moreover, in the config itself you could configure if local filesystem has to be used for uploads or on the go AWS S3 bucket. For using S3 bucket, you need to configure AWS credentials in `.env` file:
+
+    AWS_ACCESS_KEY_ID=
+    AWS_SECRET_ACCESS_KEY=
+    AWS_DEFAULT_REGION=
+Isn't is awesome? :)
 
 ## FILTERS - SELECT PARTICULAR FIELDS
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
