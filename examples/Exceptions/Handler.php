@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions;
+namespace Luezoid\Exceptions;
 
 use Luezoid\Laravelcore\Exceptions\Handler as ExceptionHandler;
 use Throwable;

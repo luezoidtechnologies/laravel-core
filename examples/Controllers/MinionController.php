@@ -6,12 +6,12 @@
  * Time: 23:33 PM
  */
 
-namespace App\Http\Controllers;
+namespace Luezoid\Http\Controllers;
 
-use App\Http\Request\MinionCreateRequest;
-use App\Http\Request\MinionDeleteRequest;
-use App\Http\Request\MinionUpdateRequest;
-use App\Repositories\MinionRepository;
+use Luezoid\Http\Request\MinionCreateRequest;
+use Luezoid\Http\Request\MinionDeleteRequest;
+use Luezoid\Http\Request\MinionUpdateRequest;
+use Luezoid\Repositories\MinionRepository;
 use Luezoid\Laravelcore\Http\Controllers\ApiController;
 use Luezoid\Laravelcore\Jobs\BaseJob;
 

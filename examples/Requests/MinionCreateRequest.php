@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Request;
+namespace Luezoid\Http\Request;
 
 
 use Luezoid\Laravelcore\Requests\BaseRequest;

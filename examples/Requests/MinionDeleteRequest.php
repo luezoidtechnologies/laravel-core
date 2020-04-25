@@ -1,10 +1,10 @@
 <?php
 
 
-namespace App\Http\Request;
+namespace Luezoid\Http\Request;
 
 
-use App\Models\Minion;
+use Luezoid\Models\Minion;
 use Luezoid\Laravelcore\Requests\BaseRequest;
 use Luezoid\Laravelcore\Services\RequestService;
 

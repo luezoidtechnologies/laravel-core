@@ -6,9 +6,9 @@
  * Time: 23:33 PM
  */
 
-namespace App\Repositories;
+namespace Luezoid\Repositories;
 
-use App\Models\Minion;
+use Luezoid\Models\Minion;
 use Luezoid\Laravelcore\Repositories\EloquentBaseRepository;
 
 class MinionRepository extends EloquentBaseRepository
