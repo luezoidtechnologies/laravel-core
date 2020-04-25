@@ -11,7 +11,7 @@ A few cool features of this package are:
  7. [File uploads](#7-file-upload) has never been so easy before. Upload to local filesystem or AWS S3 bucket on the go.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
- 10. [On the go filters can be passed as JSON in query params](#10-json-filters---select-query-over-table-columns----nested-relations-) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
+ 10. [On the go filters can be passed as JSON in query params](#10-json-filters---select-query-over-table-columns--nested-relations) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
  11. On the go searching over the related objects with simple Array based config. Much more effective when a generic search has to be made over a couple of related tables.
 >**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo-example](https://github.com/luezoidtechnologies/laravel-core-base-repo-example "laravel-core-base-repo-example").
 
