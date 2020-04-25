@@ -40,20 +40,21 @@ abstract class ApiController extends BaseController
     protected $showCall = 'show';
     protected $showWith = [];
 
-    protected $storeJobMethod;
-    protected $updateJobMethod;
+    protected $storeJobMethod = 'create';
+    protected $updateJobMethod = 'update';
     protected $deleteJobMethod = "delete";
+
     protected $jobMethod;
     protected $jobEvent;
     protected $jobRepository;
+
     protected $createJob;
     protected $updateJob;
-
     protected $deleteJob;
+
     protected $showRequest;
     protected $storeRequest;
     protected $updateRequest;
-
     protected $deleteRequest;
 
     protected $repository;
@@ -87,6 +88,7 @@ abstract class ApiController extends BaseController
      * global index function . return all data of Specific Model.
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function index(Request $request)
     {
@@ -110,6 +112,10 @@ abstract class ApiController extends BaseController
         return $this->standardResponse($result);
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getLoggedInUserId()
     {
         return EnvironmentService::getLoggedInUserId();
@@ -148,17 +154,11 @@ abstract class ApiController extends BaseController
 
     protected function validateRequest($method)
     {
-
         /**
          * create request object
          */
-
         $this->request = app($method);
-
-
         $validator = $this->request->getValidator();
-
-
         /**
          * check request is  valid ?
          */
@@ -167,7 +167,6 @@ abstract class ApiController extends BaseController
         }
 
         return false;
-
     }
 
     /**
@@ -297,7 +296,7 @@ abstract class ApiController extends BaseController
 
         $user = Auth::user();
         if (!$user) {
-            return $this->standardResponse(null, "Invalid token. No user found.", 401);
+            return $this->standardResponse(null, "Invalid token. No user found.", 401, ErrorConstants::TYPE_AUTHORIZATION_ERROR);
         }
         return $user;
     }
@@ -308,6 +307,7 @@ abstract class ApiController extends BaseController
     }
 
     /**
+     * Method which can be used as substitute for the Custom POST/PUT routes other than the resource route
      * @param $job
      * @param null $request
      * @param null $additionalData
@@ -331,6 +331,7 @@ abstract class ApiController extends BaseController
     }
 
     /**
+     * Method which can be used as substitute for the Custom GET(index) route other than the resource route
      * @param $job
      * @param null $request
      * @param array $additionalData
@@ -351,16 +352,22 @@ abstract class ApiController extends BaseController
         if ($this->isCamelToSnake) {
             $inputs = UtilityService::fromCamelToSnake($inputs);
         }
-        return $this->executeJob($request, $job, ["with" => $this->indexWith, "inputs" => $inputs, "additionalData" => $additionalData]
-        );
+        return $this->executeJob($request, $job, ["inputs" => $inputs, "additionalData" => $additionalData]);
     }
 
+    /**
+     * * Method which can be used as substitute for the Custom GET(show) route other than the resource route
+     * @param $job
+     * @param $request
+     * @param $column
+     * @param $value
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function handleCustomEndPointShow($job, $request, $column, $value)
     {
         if ($this->customRequest && $response = $this->validateRequest($this->customRequest)) return $response;
 
         $params = [
-            'with' => $this->showWith,
             'inputs' => [
                 $column => $value
             ]
