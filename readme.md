@@ -2,8 +2,8 @@
 Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (our) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs creating process.
 A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1-creating-crud)s.
- 2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post-&-put-request(s)) before creating/updating a record(in default CRUD).
- 3. Pre-built [Search & Filters](#3-searching-&-filters) ready to use with just configuring components.
+ 2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
+ 3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
  4. Pre-built Pagination ready.
  5. Relationship's data in the APIs is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
