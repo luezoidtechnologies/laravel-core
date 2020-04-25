@@ -31,7 +31,7 @@ We have sample [migration](examples/migrations/2020_04_24_175321_create_minions_
 Create a Route resource as below and we are all ready:
 
     Route::resource('minions', 'MinionController', ['parameters' => ['minions' => 'id']]);
-Try hitting REST call:
+Assuming your local server is running on port: 7872, try hitting REST endpoints as below:
 
  1. POST /minions
 
@@ -45,6 +45,20 @@ Try hitting REST call:
 	    	"favouriteSound": "Grrrrrrrrrrr",
 	    	"hasHairs": true
 	    }'
+You should see the response like:
+		{
+			"message": "Resource Created successfully",
+			"data": {
+				"name": "Stuart",
+				"total_eyes": 2,
+				"favourite_sound": "Grrrrrrrrrrr",
+				"has_hairs": true,
+				"updated_at": "2020-04-25T09:15:18.000000Z",
+				"created_at": "2020-04-25T09:15:18.000000Z",
+				"id": 1
+			},
+			"type": null
+		}
 
  2. PUT /minions/1
 
@@ -58,30 +72,103 @@ Try hitting REST call:
 	    	"favouriteSound": "Grrrrrrrrrrr Pffffff",
 	    	"hasHairs": false
 	    }'
+You should see the response like:
+		{
+			"message": "Resource Updated successfully",
+			"data": {
+				"id": 2,
+				"name": "Stuart - The Pfff",
+				"total_eyes": 2,
+				"favourite_sound": "Grrrrrrrrrrr Pffffff",
+				"has_hairs": false,
+				"created_at": "2020-04-24T18:58:41.000000Z",
+				"updated_at": "2020-04-24T19:04:16.000000Z"
+			},
+			"type": null
+		}
 
  3. DELETE /minions/1
 
 	    curl -X DELETE \
 	      http://localhost:7872/api/minions/1 \
 	      -H 'cache-control: no-cache'
-
+You should see the response like:
+		{
+			"message": "Resource deleted successfully",
+			"data": {
+				"id": 1,
+				"name": "Stuart - The Pfff",
+				"total_eyes": 2,
+				"favourite_sound": "Grrrrrrrrrrr Pffffff",
+				"has_hairs": true,
+				"created_at": "2020-04-25T09:24:38.000000Z",
+				"updated_at": "2020-04-25T09:24:42.000000Z"
+			},
+			"type": null
+		}
  4. GET /minions
 
 	    curl -X GET \
 	      http://localhost:7872/api/minions \
 	      -H 'cache-control: no-cache'
+You should see the response like:
+		{
+			"message": null,
+			"data": {
+				"items": [
+					{
+						"id": 3,
+						"name": "Hector",
+						"totalEyes": 1,
+						"favouriteSound": "Shhhhhhhhhhh",
+						"hasHairs": false,
+						"createdAt": "2020-04-25T09:25:26.000000Z",
+						"updatedAt": "2020-04-25T09:25:26.000000Z"
+					},
+					{
+						"id": 2,
+						"name": "Dave",
+						"totalEyes": 1,
+						"favouriteSound": "Hmmmmmmmmmmmmm Pchhhhhh",
+						"hasHairs": true,
+						"createdAt": "2020-04-25T09:25:04.000000Z",
+						"updatedAt": "2020-04-25T09:25:04.000000Z"
+					}
+				],
+				"page": 1,
+				"total": 2,
+				"pages": 1,
+				"perpage": 15
+			},
+			"type": null
+		}
 
- 5. GET /minions/1
+ 5. GET /minions/2
 
 	    curl -X GET \
 	      http://localhost:7872/api/minions/2 \
 	      -H 'cache-control: no-cache'
+You should see the response like:
+		{
+			"message": null,
+			"data": {
+				"id": 2,
+				"name": "Dave",
+				"total_eyes": 1,
+				"favourite_sound": "Hmmmmmmmmmmmmm Pchhhhhh",
+				"has_hairs": true,
+				"created_at": "2020-04-25T09:25:04.000000Z",
+				"updated_at": "2020-04-25T09:25:04.000000Z"
+			},
+			"type": null
+		}
 
+>**Note:** For the working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
   
 ### FILTERS - SELECT PARTICULAR FIELDS  
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
   
-**cOnly** flag can be used in **r** relations nestedly  
+**cOnly** flag can be used in **r** relations nestedly
 
     {
       "cOnly": true,
