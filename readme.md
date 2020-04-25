@@ -3,7 +3,7 @@ Luezoid came up with a compact way to help one creating the APIs very fast & wit
 A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1.-creating-crud)s.
  2. Pre-built support to define table columns which are to be [specifically excluded](#2.-exclude-columns-for-default-post-&-put-request(s)) before creating/updating a record(in default CRUD).
- 3. Pre-built Search & Filter queries ready to use with just configuring components.
+ 3. Pre-built Search & Filters ready to use with just configuring components.
  4. Pre-built Pagination ready.
  5. Relationship's data in the APIs is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
@@ -45,21 +45,6 @@ Assuming your local server is running on port: 7872, try hitting REST endpoints 
 	    	"favouriteSound": "Grrrrrrrrrrr",
 	    	"hasHairs": true
 	    }'
-You should see the response like:
-		{
-			"message": "Resource Created successfully",
-			"data": {
-				"name": "Stuart",
-				"total_eyes": 2,
-				"favourite_sound": "Grrrrrrrrrrr",
-				"has_hairs": true,
-				"updated_at": "2020-04-25T09:15:18.000000Z",
-				"created_at": "2020-04-25T09:15:18.000000Z",
-				"id": 1
-			},
-			"type": null
-		}
-
  2. PUT /minions/1
 
 	    curl -X PUT \
@@ -72,96 +57,22 @@ You should see the response like:
 	    	"favouriteSound": "Grrrrrrrrrrr Pffffff",
 	    	"hasHairs": false
 	    }'
-You should see the response like:
-		{
-			"message": "Resource Updated successfully",
-			"data": {
-				"id": 2,
-				"name": "Stuart - The Pfff",
-				"total_eyes": 2,
-				"favourite_sound": "Grrrrrrrrrrr Pffffff",
-				"has_hairs": false,
-				"created_at": "2020-04-24T18:58:41.000000Z",
-				"updated_at": "2020-04-24T19:04:16.000000Z"
-			},
-			"type": null
-		}
-
  3. DELETE /minions/1
 
 	    curl -X DELETE \
 	      http://localhost:7872/api/minions/1 \
 	      -H 'cache-control: no-cache'
-You should see the response like:
-		{
-			"message": "Resource deleted successfully",
-			"data": {
-				"id": 1,
-				"name": "Stuart - The Pfff",
-				"total_eyes": 2,
-				"favourite_sound": "Grrrrrrrrrrr Pffffff",
-				"has_hairs": true,
-				"created_at": "2020-04-25T09:24:38.000000Z",
-				"updated_at": "2020-04-25T09:24:42.000000Z"
-			},
-			"type": null
-		}
  4. GET /minions
 
 	    curl -X GET \
 	      http://localhost:7872/api/minions \
 	      -H 'cache-control: no-cache'
-You should see the response like:
-		{
-			"message": null,
-			"data": {
-				"items": [
-					{
-						"id": 3,
-						"name": "Hector",
-						"totalEyes": 1,
-						"favouriteSound": "Shhhhhhhhhhh",
-						"hasHairs": false,
-						"createdAt": "2020-04-25T09:25:26.000000Z",
-						"updatedAt": "2020-04-25T09:25:26.000000Z"
-					},
-					{
-						"id": 2,
-						"name": "Dave",
-						"totalEyes": 1,
-						"favouriteSound": "Hmmmmmmmmmmmmm Pchhhhhh",
-						"hasHairs": true,
-						"createdAt": "2020-04-25T09:25:04.000000Z",
-						"updatedAt": "2020-04-25T09:25:04.000000Z"
-					}
-				],
-				"page": 1,
-				"total": 2,
-				"pages": 1,
-				"perpage": 15
-			},
-			"type": null
-		}
-
  5. GET /minions/2
-
-	    curl -X GET \
-	      http://localhost:7872/api/minions/2 \
-	      -H 'cache-control: no-cache'
-You should see the response like:
-		{
-			"message": null,
-			"data": {
-				"id": 2,
-				"name": "Dave",
-				"total_eyes": 1,
-				"favourite_sound": "Hmmmmmmmmmmmmm Pchhhhhh",
-				"has_hairs": true,
-				"created_at": "2020-04-25T09:25:04.000000Z",
-				"updated_at": "2020-04-25T09:25:04.000000Z"
-			},
-			"type": null
-		}
+ 
+     	curl -X GET \
+    	  http://localhost:8000/api/minions/2 \
+    	  -H 'Postman-Token: 658d1e15-c109-4e69-98cb-2afc6ed9c4b7' \
+    	  -H 'cache-control: no-cache'
 
 >**Note:** For a working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
 
@@ -178,9 +89,50 @@ Refer the [`Minon`](examples/Models/Minion.php "Minon") model. We have the below
     	'total_eyes',
     	'has_hairs'
     ];
-The major advantage for using such config in the model at first place is: to provide a clean & elegant way & to simply reduce the coding efforts just before saving the whole data into table. Typical examples could be:
-1. You don't want save a column value say **is_email_verified** if an attacker sends it the request body of POST /users; just add it into `$createExcept`. You need not to exclude this specifically in the codes/or request rules.
-2. You don't want update a column say ***username*** if an attacker sends it the request body of PUT /users/{id}; just add it into `$updateExcept`. You need not to exclude this specifically in the codes/or request rules.
+The major advantage for using such config in the model in the first place is: to provide a clean & elegant way & to simply reduce the coding efforts to be done just before saving the whole data into table. Typical examples could be:
+1. You don't want to save a column value say ***is_email_verified*** if an attacker sends it the request body of POST /users; just add it into `$createExcept`. You need not to exclude this specifically in the codes/or request rules.
+2. You don't want to update a column say ***username*** if an attacker sends it the request body of PUT /users/{id}; just add it into `$updateExcept`. You need not to exclude this specifically in the codes/or request rules.
+
+## 3. Searching & Filters
+You can simply search over the list of available column(s) in the table for all GET requests. Let's begin with examples:
+- **General Searching**
+By default all the available columns in the tables are ready to be queried over GET request just by passing the key(s)-value(s) pair(s) in the query params. But to specifically mention it in the Model itsef, just define a public property `$searchable` which is an array containing the columns allowed to be searched.
+Let's say you want to search for all minions whose favourite sound is ***Pchhhh***.
+
+		curl -X GET \
+		  'http://localhost:7872/api/minions?favouriteSound=Pchhhh' \
+		  -H 'cache-control: no-cache'
+    Response should contain all minions having ***Pchhhh*** string available in the column `favourite_sound` in the table `minions`.
+    > Searching is using `LIKE` operator as `'%-SEARCH-STRING%'`.
+- **General Filtering**
+
+    Similar to searching, you need to define public property `$filterable` which is again an array containing the columns allowed to be filtered.
+
+		public $filterable = [
+			'id',
+			'total_eyes',
+			'has_hairs'
+		];
+    Exact match will performed against these columns if present in the query params.
+
+    Example: To find all the minions having `totalEyes` equal to 1:
+
+    	curl -X GET \
+    	  'http://localhost:7872/api/minions?totalEyes=1' \
+    	  -H 'cache-control: no-cache'
+    > Filtering is using `=` operator as `'total_eyes'=1`.
+- **Date Filters**
+
+    Add the column which you want to be used for date filtering into `$filterable` property in the model class. Once done, you can now simply pass the query params **from** (AND/OR) **to** with the date(or datetime) values in standard MySQL format(`Y-m-d H:i:s`).
+Example: We want to search for all the minions which are created after **2020-04-25  09:25:20**:
+
+    	curl -X GET \
+    	  'http://localhost:7872/api/minions?createdAt=2020-04-25%20%2009:25:20' \
+    	  -H 'cache-control: no-cache'
+    You can also pass the column name in the query params over which you want the date search to be applied for. Just pass the key **dateFilterColumn** with the column name you want to use date search on (but note that the **$filterable** property must have this column specified in order to make things work).
+> Notes:
+>1. You may specify multiple key-value pairs in the query params & all the conditions will be queried with `AND` operators.
+>2. Pass all the variables in **camelCasing** & all will be transferred into **snake_casing** internally. You may configure this transformation **turning off** by **overriding properties** `$isCamelToSnake` & `$isSnakeToCamel` and setting them to `false` in [ApiCotroller](src/Http/Controllers/ApiController.php "ApiCotroller").
 
 ### FILTERS - SELECT PARTICULAR FIELDS  
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
