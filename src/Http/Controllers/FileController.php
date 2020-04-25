@@ -58,7 +58,7 @@ class FileController extends ApiController
 
 
         if ($validator->fails()) {
-            return $this->standardResponse(null, $validator->errors()->all(), 400);
+            return $this->standardResponse(null, $validator->errors()->messages(), 400, ErrorConstants::TYPE_BAD_REQUEST_ERROR);
         }
 
         $file = $request->file('file');
@@ -88,7 +88,7 @@ class FileController extends ApiController
             $file = new UploadedFile($tempFilePath, $fileName);
         } else {
             $fileName = $request->get('fileName', $file->getClientOriginalName());
-//        TODO: file extension validation
+            //TODO: file extension validation
             if (!$request->file('file')->isValid()) {
                 Log::error(__('errors.errorInUploadingFile') . $request->file('file')->getError());
                 return $this->standardResponse(null, "Invalid File", 400, ErrorConstants::TYPE_VALIDATION_ERROR);

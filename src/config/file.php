@@ -8,13 +8,13 @@
 
 
 return [
-    'is_local' => false,
+    'is_local' => true, // set this to false to use upload on S3 bucket
     'temp_path' => 'uploads',
     'aws_temp_link_time' => 10,
     'types' => [
         'EXAMPLE' => [
             'type' => 'EXAMPLE',
-            'local_path' => 'examples',
+            'local_path' => 'storage/examples',
             'bucket_name' => 'examples',    // if files are gonna be uploaded on s3 bucket
             'validation' => 'required',
             'valid_file_types' => [     // define the extensions allowed
