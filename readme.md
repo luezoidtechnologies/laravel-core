@@ -77,7 +77,7 @@ Assuming your local server is running on port: 7872, try hitting REST endpoints 
 >**Note:** For a working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
 
 ## 2. Exclude columns for default POST & PUT request(s)
-Refer the [`Minon`](examples/Models/Minion.php "Minon") model. We have the below public properties which can be used to define an array containing list of the columns to be specifically excluded for default **POST** & **PUT** requests of [CRUD](#creating-crud "CRUD"):
+Refer the [`Minon`](examples/Models/Minion.php "Minon") model. We have the below public properties which can be used to define an array containing list of the columns to be specifically excluded for default **POST** & **PUT** requests of [CRUD](#1-creating-crudg "CRUD"):
 
 	// To exclude the key(s) if present in request body for default POST CRUD routes eg. POST /minions
     public $createExcept = [
