@@ -6,7 +6,7 @@ A few cool features of this package are:
  2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
  4. Pre-built [Pagination](#4-pagination) ready.
- 5. Relationship's data in the APIs is just a config thing.
+ 5. [Relationship's data](#5-relationship's-data) in the APIs(GET) is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
  7. File uploads has never been easy before.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
@@ -157,9 +157,24 @@ Pretty self explanatory, eh?
 You can pass query param **perpage=5** (to limit the per page size). Similarly, the **page=2** will grab the results of page 2.
 
 Paginating the results has never been so easy before :)
-> Note: Any route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save time for manually implementing pagination & grab a pint of beer to chill.
+> Note: Any GET(index) route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save time for manually implementing pagination & grab a pint of beer to chill.
 
-### FILTERS - SELECT PARTICULAR FIELDS
+## 5. Relationship's data
+Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is one-to-one relationship exists between Minion & Missions. See the `missions` table migrations([1](examples/migrations/2020_04_25_193714_create_missions_table.php),[2](examples/migrations/2020_04_25_193715_add_foreign_keys_to_missions_table.php)) and Model [`Mission`](examples/Models/Mission.php). To retrieve the leading mission by each Minion in GET requests(index & show), just add the relationship name in the [`MinionController`](/examples/Controllers/MinionController.php) properties as follows:
+- GET /minions
+        protected $indexWith = [
+            'leading_mission'	// name of the hasOne() relationship defined in the Minion model
+        ];
+- GET /minions/2
+        protected $showWith = [
+            'leading_mission'	// name of the hasOne() relationship defined in the Minion model
+        ];
+
+That's it. Just a config thingy & you can see in the response each **Minion** object contains another object **leadingMission** which is an instance of [`Mission`](examples/Models/Mission.php) model lead by respective Minion.
+
+> Note: For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
+
+## FILTERS - SELECT PARTICULAR FIELDS
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
   
 **cOnly** flag can be used in **r** relations nestedly

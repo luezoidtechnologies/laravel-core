@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
+ * @property Mission $leading_mission
+ *
  * @package Luezoid\Models
  */
 class Minion extends Model
@@ -51,4 +53,9 @@ class Minion extends Model
         'total_eyes',
         'has_hairs'
     ];
+
+    public function leading_mission()
+    {
+        return $this->hasOne(Mission::class, 'lead_by_id');
+    }
 }
