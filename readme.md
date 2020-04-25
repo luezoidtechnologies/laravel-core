@@ -71,8 +71,7 @@ Assuming your local server is running on port: 7872, try hitting REST endpoints 
  5. GET /minions/2
  
      	curl -X GET \
-    	  http://localhost:8000/api/minions/2 \
-    	  -H 'Postman-Token: 658d1e15-c109-4e69-98cb-2afc6ed9c4b7' \
+    	  http://localhost:7872/api/minions/2 \
     	  -H 'cache-control: no-cache'
 
 >**Note:** For a working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
