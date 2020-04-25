@@ -14,6 +14,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request as Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Constants\ErrorConstants;
 use Luezoid\Laravelcore\Jobs\BaseJob;
 use Luezoid\Laravelcore\Services\EnvironmentService;
@@ -99,6 +100,9 @@ abstract class ApiController extends BaseController
 
         if ($this->isCamelToSnake) {
             $inputs = UtilityService::fromCamelToSnake($inputs);
+            if (isset($inputs['date_filter_column'])) {
+                $inputs['date_filter_column'] = Str::snake($inputs['date_filter_column']);
+            }
         }
 
         $result = $this->repo->{$this->indexCall}(["with" => $this->indexWith, "inputs" => $inputs]);
