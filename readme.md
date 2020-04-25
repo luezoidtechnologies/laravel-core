@@ -157,7 +157,7 @@ Did you notice the response of GET endpoint we just created above? Let's take a 
 Pretty self explanatory, right?
 You can pass query param **perpage=5** (to limit the per page size). Similarly, the **page=2** will grab the results of page 2.
 Paginating the results has never been so easy before :)
-> Any route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save a lot of time manually implementig pagination.
+> Any route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save time for manually implementing pagination & grab a pint of beer to chill.
 
 ### FILTERS - SELECT PARTICULAR FIELDS
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
