@@ -1,8 +1,8 @@
 # Laravel Core Package
 Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (our) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs creating process.
 A few cool features of this package are:
- 1. Simplest & fastest way to create [CRUD](#creating-crud)s.
- 2. Pre-built support to define table columns which are to be specifically excluded before creating/updating a record.
+ 1. Simplest & fastest way to create [CRUD](#1.-creating-crud)s.
+ 2. Pre-built support to define table columns which are to be [specifically excluded](#2.-exclude-columns-for-default-post-&-put-request(s)) before creating/updating a record(in default CRUD).
  3. Pre-built Search & Filter queries ready to use with just configuring components.
  4. Pre-built Pagination ready.
  5. Relationship's data in the APIs is just a config thing.
@@ -21,14 +21,14 @@ We recommend using [Composer](https://getcomposer.org) to install this package. 
     composer require "luezoid/laravel-core:^5.0"	# For Laravel version 5.x
 Next, configure your `app/Exceptions/Handler.php` and extend it with `Luezoid\Laravelcore\Exceptions\Handler`. Sample file can be seen [here](/examples/Exceptions/Handler.php).
 
-## Creating CRUD
+## 1. Creating CRUD
 Using this packages adds an extra entity between the Controller & Model paradigm in a normal MVC architecture. This extra entity we are referring here is called **Repository**. A **Repository** is a complete class where your whole business logic resides from getting the processed data from a **Controller** and saving it into database using **Model**(s).
 By using **Repository** as an intermediate between **Controller** & **Model**, we aim at maintaing clean code at **Controller's** end and making it a mediator which only receives data(from View, typically a REST route), validate it against the defined validation rules(if any, we uses **Request** class to define such rules), pre-process it(for eg. transform ***camelCased*** data from front-end into ***snake_case***) & sending business cooked data back the View.
 
 Let's start with creating a simple **Minions** CRUD.
 
 We have sample [migration](examples/migrations/2020_04_24_175321_create_minions_table.php) for table `minions`, model [`Minion`](/examples/Models/Minion.php), controller [`MinionController`](/examples/Controllers/MinionController.php) and repository [`MinionRepository`](/examples/Repositories/MinionRepository.php).
-Create a Route resource as below and we are all ready:
+Add these files into your application & adjust the namespaces accordingly. Then create a Route resource as below and we are all ready:
 
     Route::resource('minions', 'MinionController', ['parameters' => ['minions' => 'id']]);
 Assuming your local server is running on port: 7872, try hitting REST endpoints as below:
@@ -163,8 +163,25 @@ You should see the response like:
 			"type": null
 		}
 
->**Note:** For the working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
-  
+>**Note:** For a working complete example of this CRUD with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
+
+## 2. Exclude columns for default POST & PUT request(s)
+Refer the [`Minon`](examples/Models/Minion.php "Minon") model. We have the below public properties which can be used to define an array containing list of the columns to be specifically excluded for default **POST** & **PUT** requests of [CRUD](#creating-crud "CRUD"):
+
+	// To exclude the key(s) if present in request body for default POST CRUD routes eg. POST /minions
+    public $createExcept = [
+    	'id'
+    ];
+
+	// To exclude the key(s) if present in request body for default PUT CRUD routes eg. PUT /minions/1
+    public $updateExcept = [
+    	'total_eyes',
+    	'has_hairs'
+    ];
+The major advantage for using such config in the model at first place is: to provide a clean & elegant way & to simply reduce the coding efforts just before saving the whole data into table. Typical examples could be:
+1. You don't want save a column value say **is_email_verified** if an attacker sends it the request body of POST /users; just add it into `$createExcept`. You need not to exclude this specifically in the codes/or request rules.
+2. You don't want update a column say ***username*** if an attacker sends it the request body of PUT /users/{id}; just add it into `$updateExcept`. You need not to exclude this specifically in the codes/or request rules.
+
 ### FILTERS - SELECT PARTICULAR FIELDS  
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
   
