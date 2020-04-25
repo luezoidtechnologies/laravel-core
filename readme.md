@@ -6,7 +6,7 @@ A few cool features of this package are:
  2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
  4. Pre-built [Pagination](#4-pagination) ready.
- 5. [Relationship's data](#5-relationship's-data) in the APIs(GET) is just a config thing.
+ 5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
  7. File uploads has never been easy before.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
