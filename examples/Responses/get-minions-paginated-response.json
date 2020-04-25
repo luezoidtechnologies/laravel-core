@@ -1,0 +1,66 @@
+{
+  "message": null,
+  "data": {
+    "items": [
+      {
+        "id": 3,
+        "name": "Hector",
+        "totalEyes": 1,
+        "favouriteSound": "Shhhhhhhhhhh",
+        "hasHairs": false,
+        "createdAt": "2020-04-25T14:55:26.000000Z",
+        "updatedAt": "2020-04-27T14:55:26.000000Z"
+      },
+      {
+        "id": 2,
+        "name": "Dave",
+        "totalEyes": 1,
+        "favouriteSound": "Hmmmmmmmmmmmmm Pchhhhhh",
+        "hasHairs": true,
+        "createdAt": "2020-04-25T14:55:04.000000Z",
+        "updatedAt": "2020-04-25T14:55:04.000000Z"
+      },
+      {
+        "id": 7,
+        "name": "Lucifer",
+        "totalEyes": 0,
+        "favouriteSound": "Luuuuuuu",
+        "hasHairs": true,
+        "createdAt": "2020-04-25T11:53:04.000000Z",
+        "updatedAt": "2020-04-25T11:53:04.000000Z"
+      },
+      {
+        "id": 6,
+        "name": "Khachhhh",
+        "totalEyes": 2,
+        "favouriteSound": "khhhhhuuuu",
+        "hasHairs": true,
+        "createdAt": "2020-04-25T11:52:39.000000Z",
+        "updatedAt": "2020-04-25T11:52:39.000000Z"
+      },
+      {
+        "id": 5,
+        "name": "RL Nuuuu",
+        "totalEyes": 0,
+        "favouriteSound": "Nuuuuuuuuuu",
+        "hasHairs": true,
+        "createdAt": "2020-04-25T11:52:13.000000Z",
+        "updatedAt": "2020-04-25T11:52:13.000000Z"
+      },
+      {
+        "id": 4,
+        "name": "AK Burrr",
+        "totalEyes": 0,
+        "favouriteSound": "Brrrrrrrrr",
+        "hasHairs": true,
+        "createdAt": "2020-04-25T11:51:47.000000Z",
+        "updatedAt": "2020-04-25T11:51:47.000000Z"
+      }
+    ],
+    "page": 1,    // tells us about the current page
+    "total": 6,   // tells us the total results available (matching all the query params for searching/filtering applied)
+    "pages": 1,   // total pages in which the whole result set is distributed
+    "perpage": 15 // total results per page
+  },
+  "type": null
+}

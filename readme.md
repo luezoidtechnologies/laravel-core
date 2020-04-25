@@ -1,10 +1,11 @@
 # Laravel Core Package
 Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (our) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs creating process.
+
 A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1-creating-crud)s.
  2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
- 4. Pre-built Pagination ready.
+ 4. Pre-built [Pagination](#4-pagination) ready.
  5. Relationship's data in the APIs is just a config thing.
  6. Better way to correctly fire an event upon successful completion of an action.
  7. File uploads has never been easy before.
@@ -135,7 +136,30 @@ Example: We want to search for all the minions which are created after **2020-04
 >1. You may specify multiple key-value pairs in the query params & all the conditions will be queried with `AND` operators.
 >2. Pass all the variables in **camelCasing** & all will be transferred into **snake_casing** internally. You may configure this transformation **turning off** by **overriding properties** `$isCamelToSnake` & `$isSnakeToCamel` and setting them to `false` in [ApiCotroller](src/Http/Controllers/ApiController.php "ApiCotroller").
 
-### FILTERS - SELECT PARTICULAR FIELDS  
+## 4. Pagination
+Did you notice the response of GET endpoints we just created above? Let's take a look in brief. Refer the [response](examples/Responses/get-minions-paginated-response.json "response") of **GET /minions** API.
+
+    	{
+    	  "message": null,
+    	  "data": {
+    		"items": [
+    		  {},
+    		  {},
+    		  ...
+    		],
+    		"page": 1,       // tells us about the current page
+    		"total": 6,        // tells us the total results available (matching all the query params for searching/filtering applied)
+    		"pages": 1,     // total pages in which the whole result set is distributed
+    		"perpage": 15 // total results per page
+    	  },
+    	  "type": null
+    	}
+Pretty self explanatory, right?
+You can pass query param **perpage=5** (to limit the per page size). Similarly, the **page=2** will grab the results of page 2.
+Paginating the results has never been so easy before :)
+> Any route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save a lot of time manually implementig pagination.
+
+### FILTERS - SELECT PARTICULAR FIELDS
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
   
 **cOnly** flag can be used in **r** relations nestedly
