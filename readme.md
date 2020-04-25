@@ -13,7 +13,7 @@ A few cool features of this package are:
  9. Nested Related models can be queried with simple config based approach from the code components.
  10. On the go filters can be passed as JSON in query params to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
  11. On the go searching over the related objects with simple Array based config. Much more effective when a generic search has to be made over a couple of related tables.
->**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo "laravel-core-base-repo").
+>**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo](https://github.com/luezoidtechnologies/laravel-core-base-repo-example "laravel-core-base-repo-example").
 
 ## Installation
 We recommend using [Composer](https://getcomposer.org) to install this package. This package supports [Laravel](https://laravel.com) versions >= 5.x.
