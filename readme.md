@@ -7,7 +7,7 @@ A few cool features of this package are:
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
  4. Pre-built [Pagination](#4-pagination) ready.
  5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
- 6. Better way to correctly fire an event upon successful completion of an action.
+ 6. Better way to correctly [fire an event](#6-attach-event-on-an-action) upon successful completion of an action.
  7. File uploads has never been easy before.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
@@ -175,6 +175,24 @@ Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is o
 That's it. Just a config thingy & you can see in the response each **Minion** object contains another object **leadingMission** which is an instance of [`Mission`](examples/Models/Mission.php) model lead by respective Minion.
 
 > Note: For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
+
+## 6. Attach Event on an action
+Let's arrange an [Event](#) to get triggered to bring a **Minion** to **Gru's** lab whenever a new [`Mission`](examples/Models/Mission.php) is created leading by the **Minion**. Create a POST route:
+`Route::post('missions', 'MissionController@createMission')->name('missions.store');`
+We need to have [`MissionController`](examples/Controllers/MissionController.php), [`MissionRepository`](examples/Repositories/MissionRepository.php), [`MissionCreateRequest`](examples/Requests/MissionCreateRequest.php) and [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) ready for this route to work.
+Also we need to have an Event say [`BringMinionToLabEvent`](examples/Events/BringMinionToLabEvent.php) ready to be triggered & the same to be configured into job [`MissionCreateJob`](examples/Jobs/MissionCreateJob.php) under property `public $event = BringMinionToLabEvent::class;`
+Now try hitting the route POST /missions as follows:
+
+    curl -X POST \
+      http://localhost:7872/api/missions \
+      -H 'Content-Type: application/json' \
+      -H 'cache-control: no-cache' \
+      -d '{
+    	"name": "Steal the Moon! Part - 4",
+    	"description": "The first moon landing happened in 1969. Felonius Gru watched this historic moment with his mother and was inspired by the landing to go to outer space just like his idol Neil Armstrong.",
+    	"minionId": 2
+    }'
+You should be able to see a log entry under file `storage/logs/laravel.log` which is the action we had set in the event [`BringMinionToLabEvent`](examples/Events/BringMinionToLabEvent.php).
 
 ## FILTERS - SELECT PARTICULAR FIELDS
 **k** is keys, **r** is relation, **cOnly** is flag to set count is needed or the relational data  
