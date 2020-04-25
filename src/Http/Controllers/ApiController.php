@@ -234,11 +234,6 @@ abstract class ApiController extends BaseController
 
     public function __call($method, $arguments)
     {
-
-        if ($method == 'update') {
-            return $this->updateOverloadFunction(request(), end($arguments));
-        }
-
         parent::__call($method, $arguments);
     }
 
@@ -247,7 +242,7 @@ abstract class ApiController extends BaseController
      * @param $id
      * @return bool|\Illuminate\Http\JsonResponse
      */
-    public function updateOverloadFunction(Request $request, $id)
+    public function update(Request $request, $id)
     {
 
         $this->defaultMessage = $this->resourceName ? $this->resourceName . " updated successfully" : "Resource Updated successfully";
