@@ -162,13 +162,15 @@ Paginating the results has never been so easy before :)
 ## 5. Relationship's data
 Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is one-to-one relationship exists between Minion & Missions. See the `missions` table migrations([1](examples/migrations/2020_04_25_193714_create_missions_table.php),[2](examples/migrations/2020_04_25_193715_add_foreign_keys_to_missions_table.php)) and Model [`Mission`](examples/Models/Mission.php). To retrieve the leading mission by each Minion in GET requests(index & show), just add the relationship name in the [`MinionController`](/examples/Controllers/MinionController.php) properties as follows:
 - GET /minions
-        protected $indexWith = [
-            'leading_mission'	// name of the hasOne() relationship defined in the Minion model
-        ];
+
+      protected $indexWith = [
+          'leading_mission'	// name of the hasOne() relationship defined in the Minion model
+      ];
 - GET /minions/2
-        protected $showWith = [
-            'leading_mission'	// name of the hasOne() relationship defined in the Minion model
-        ];
+
+      protected $showWith = [
+          'leading_mission'	// name of the hasOne() relationship defined in the Minion model
+      ];
 
 That's it. Just a config thingy & you can see in the response each **Minion** object contains another object **leadingMission** which is an instance of [`Mission`](examples/Models/Mission.php) model lead by respective Minion.
 
