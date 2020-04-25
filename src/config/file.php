@@ -9,15 +9,22 @@
 
 return [
     'is_local' => false,
-    'temp_path' => 'images/temp_path',
+    'temp_path' => 'uploads',
     'aws_temp_link_time' => 10,
     'types' => [
-//        File::TYPE_USER_IMAGE => ['type' => File::TYPE_USER_IMAGE,
-//            'local_path' => 'images/user_image',
-//            'bucket_name' => 'takkeh',
-//            'validation' => 'required',
-//            'valid_file_types' => ['csv', 'xls', 'xlsx'],
-//            'acl' => 'private'
-//        ]
+        'EXAMPLE' => [
+            'type' => 'EXAMPLE',
+            'local_path' => 'examples',
+            'bucket_name' => 'examples',    // if files are gonna be uploaded on s3 bucket
+            'validation' => 'required',
+            'valid_file_types' => [     // define the extensions allowed
+                'csv',
+                'xls',
+                'xlsx',
+                'jpg',
+                'png'
+            ],
+            'acl' => 'private'          // for s3 bucket
+        ]
     ]
 ];
