@@ -137,23 +137,23 @@ Example: We want to search for all the minions which are created after **2020-04
 >2. Pass all the variables in **camelCasing** & all will be transferred into **snake_casing** internally. You may configure this transformation **turning off** by **overriding properties** `$isCamelToSnake` & `$isSnakeToCamel` and setting them to `false` in [ApiCotroller](src/Http/Controllers/ApiController.php "ApiCotroller").
 
 ## 4. Pagination
-Did you notice the response of GET endpoints we just created above? Let's take a look in brief. Refer the [response](examples/Responses/get-minions-paginated-response.json "response") of **GET /minions** API.
+Did you notice the response of GET endpoint we just created above? Let's take a look in brief. Refer the [response](examples/Responses/get-minions-paginated-response.json "response") of **GET /minions** API.
 
-    	{
-    	  "message": null,
-    	  "data": {
-    		"items": [
-    		  {},
-    		  {},
-    		  ...
-    		],
-    		"page": 1,       // tells us about the current page
-    		"total": 6,        // tells us the total results available (matching all the query params for searching/filtering applied)
-    		"pages": 1,     // total pages in which the whole result set is distributed
-    		"perpage": 15 // total results per page
-    	  },
-    	  "type": null
-    	}
+    {
+      "message": null,
+      "data": {
+        "items": [
+          {},
+          {},
+          ...
+        ],
+        "page": 1,      // tells us about the current page
+        "total": 6,     // tells us the total results available (matching all the query params for searching/filtering applied)
+        "pages": 1,     // total pages in which the whole result set is distributed
+        "perpage": 15   // total results per page
+      },
+      "type": null
+    }
 Pretty self explanatory, right?
 You can pass query param **perpage=5** (to limit the per page size). Similarly, the **page=2** will grab the results of page 2.
 Paginating the results has never been so easy before :)

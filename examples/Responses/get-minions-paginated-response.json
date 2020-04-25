@@ -57,10 +57,10 @@
         "updatedAt": "2020-04-25T11:51:47.000000Z"
       }
     ],
-    "page": 1,    // tells us about the current page
-    "total": 6,   // tells us the total results available (matching all the query params for searching/filtering applied)
-    "pages": 1,   // total pages in which the whole result set is distributed
-    "perpage": 15 // total results per page
+    "page": 1,
+    "total": 6,
+    "pages": 1,
+    "perpage": 15
   },
   "type": null
 }
