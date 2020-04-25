@@ -203,12 +203,12 @@ Publish the [`file.php`](src/config/file.php) configuration file to the config d
 Configure the new `type` representing a specific module eg. **MINION_PROFILE_PICTURE** as per your requirement, define the `validation`(if any), `valid_file_types` allowed, `local_path`(for local filesystem), etc. A sample `type` named **EXAMPLE** is added by default for reference.
 Next, add the below code in `AppServiceProvide`:
 
-	$this->app->bind(\Luezoid\Laravelcore\Contracts\IFile::class, function ($app) {
-		if (config('file.is_local')) {
-			return $app->make(\Luezoid\Laravelcore\Files\Services\LocalFileUploadService::class);
-		}
-		return $app->make(\Luezoid\Laravelcore\Files\Services\SaveFileToS3Service::class);
-	});
+    $this->app->bind(\Luezoid\Laravelcore\Contracts\IFile::class, function ($app) {
+        if (config('file.is_local')) {
+            return $app->make(\Luezoid\Laravelcore\Files\Services\LocalFileUploadService::class);
+        }
+        return $app->make(\Luezoid\Laravelcore\Files\Services\SaveFileToS3Service::class);
+    });
 Next, create a route as below:
 
 	Route::post('files', '\Luezoid\Laravelcore\Http\Controllers\FileController@store')->name('files.store');
