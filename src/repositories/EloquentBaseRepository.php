@@ -307,13 +307,10 @@ class EloquentBaseRepository implements IBaseRepository
         }
 
 
-        // Added default query on date range if defined in $filterable on created_at
-        if (in_array('created_at', $filterable)) {
-            $dateFilterColumn = (
-                isset($params['inputs']['date_filter_column'])
-                &&
-                in_array($params['inputs']['date_filter_column'], $filterable)
-            ) ? $params['inputs']['date_filter_column'] : 'created_at';
+        // Added default query on date range if defined in $filterable property
+        $dateFilterColumn = isset($params['inputs']['date_filter_column']) ? $params['inputs']['date_filter_column'] : 'created_at';
+        if (in_array($dateFilterColumn, $filterable)) {
+            // if the date_filter_column is defined as filterable property, then only we search
             if (isset($params['inputs']['from'])) {
                 $query = call_user_func_array([$query ?? $this->model, 'where'], [$tableName ? $tableName . '.' . $dateFilterColumn : $dateFilterColumn, '>=', $params['inputs']['from']]);
             }
