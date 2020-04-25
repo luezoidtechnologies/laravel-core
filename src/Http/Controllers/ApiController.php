@@ -123,7 +123,7 @@ abstract class ApiController extends BaseController
 
     public function standardResponse($data, $message = null, $httpCode = 200, $type = null)
     {
-        if ($httpCode == 200 && $data && $this->isSnakeToCamel && is_array($data)) {
+        if ($httpCode == 200 && $data && $this->isSnakeToCamel && (is_array($data) || is_object($data))) {
             $data = UtilityService::fromSnakeToCamel(json_decode(json_encode($data), true));
         }
         return response()->json([
