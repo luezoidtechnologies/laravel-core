@@ -5,7 +5,7 @@ A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1-creating-crud)s.
  2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
- 4. Pre-built [Pagination](#4-pagination) ready.
+ 4. Pre-built [Pagination & Ordering](#4-pagination---ordering) of records ready.
  5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
  6. Better way to correctly [fire an event](#6-attach-event-on-an-action-success) upon successful completion of an action.
  7. [File uploads](#7-file-upload) has never been so easy before. Upload to local filesystem or AWS S3 bucket on the go.
@@ -109,9 +109,9 @@ Let's say you want to search for all minions whose favourite sound is ***Pchhhh*
     Similar to searching, you need to define public property `$filterable` which is again an array containing the columns allowed to be filtered.
 
 		public $filterable = [
-			'id',
-			'total_eyes',
-			'has_hairs'
+		    'id',
+		    'total_eyes',
+		    'has_hairs'
 		];
     Exact match will performed against these columns if present in the query params.
 
@@ -134,7 +134,7 @@ Example: We want to search for all the minions which are created after **2020-04
 >1. You may specify multiple key-value pairs in the query params & all the conditions will be queried with `AND` operators.
 >2. Pass all the variables in **camelCasing** & all will be transferred into **snake_casing** internally. You may configure this transformation **turning off** by **overriding properties** `$isCamelToSnake` & `$isSnakeToCamel` and setting them to `false` in [ApiCotroller](src/Http/Controllers/ApiController.php "ApiCotroller").
 
-## 4. Pagination
+## 4. Pagination & Ordering
 Did you notice the response of GET endpoint we just created above? Let's take a look in brief. Refer the [response](examples/Responses/get-minions-paginated-response.json "response") of **GET /minions** API.
 
     {
@@ -156,8 +156,10 @@ Pretty self explanatory, eh?
 
 You can pass query param **perpage=5** (to limit the per page size). Similarly, the **page=2** will grab the results of page 2.
 
-Paginating the results has never been so easy before :)
-> Note: Any GET(index) route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination. Make sure to use this pre-built feature & save time for manually implementing pagination & grab a pint of beer to chill.
+For ordering the data sets by a particular column, just send query param key `orderby` with the name of column & a separate key `order` with value `ASC` for Acsending (or) `DESC` for sorting in descending order. By default, results are sorted in descending order.
+
+Paginating & Ordering the results has never been so easy before :)
+> Note: Any GET(index) route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination & ordering. Make sure to use this pre-built feature & save time for manually implementing these features for every endpoint & grab a pint of beer to chill.
 
 ## 5. Relationship's data
 Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is one-to-one relationship exists between Minion & Missions. See the `missions` table migrations([1](examples/migrations/2020_04_25_193714_create_missions_table.php),[2](examples/migrations/2020_04_25_193715_add_foreign_keys_to_missions_table.php)) and Model [`Mission`](examples/Models/Mission.php). To retrieve the leading mission by each Minion in GET requests(index & show), just add the relationship name in the [`MinionController`](/examples/Controllers/MinionController.php) properties as follows:
@@ -231,6 +233,7 @@ Isn't is awesome? :)
 
 ## 10. JSON Filters - `SELECT` query over table columns (& nested relations)
 This is one of the coolest feature of this package. In the query params, a key-value pair can be passed with which you could simply restrict the number of columns to be present in the response for a particular model object & it's related model entities. The key to be sent is `selectFilters` & the value has to be minified JSON as explained below:
+
 **k** is keys, **r** is relation, **cOnly** is flag to set if only count is needed or the whole relational data.
 **cOnly** flag can be used in **r** relations nestedly.
 
@@ -248,7 +251,7 @@ So, with the above JSON, a GET request like:
     curl -X GET \
       'http://localhost:7872/api/minions?selectFilters={%22cOnly%22:false,%22k%22:[%22id%22,%22name%22,%22favouriteSound%22],%22r%22:{%22missions%22:{%22k%22:[%22name%22,%22description%22]}}}' \
       -H 'cache-control: no-cache'
-would return only the columns `id`, `name` & `favourite_sound` of table `minions` and columns `name` & `description` of table `missions`. Rest redundant columns which are not needed are eleminated from the response causing substantial reduction in the size of overall response & speeding up the response time of APIs.
+would return only the columns `id`, `name` & `favourite_sound` of table `minions` and columns `name` & `description` of table `missions` in the [response](examples/Responses/json-filters-applied-on-listing-api.json). Rest redundant columns which are not needed are eleminated from the response causing substantial reduction in the size of overall response & speeding up the response time of APIs.
 > **A Note here:** both the columns the '**local key**' & the '**foreign key**' must be present in the main & the related relation(s). This whole config can go as deeper as needed in the same way as the first relation goes.
   
 ## Search  
