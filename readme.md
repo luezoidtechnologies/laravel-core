@@ -12,7 +12,7 @@ A few cool features of this package are:
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
  10. [On the go `SELECT` & Relation filters can be passed with JSON & object operator(`->`) in query params](#10--select--relation-filters---select--where-query-over-table-columns--nested-relations) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
- 11. On the go searching over the related objects with simple Array based config. Much more effective when a generic search has to be made over a couple of related tables.
+ 11. [Generic/Open Search](#11-generic-open-search) over a set of related objects(tables) with simple Array based config.
 >**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo-example](https://github.com/luezoidtechnologies/laravel-core-base-repo-example "laravel-core-base-repo-example").
 
 ## Installation
@@ -275,20 +275,20 @@ This is one of the coolest feature of this package. Tired off writing query to s
     So, do we deserve a **star** rating? :)
     >**Note:** These Select & Relation filters can be combined together to reduce the response size as well as the size of bacck-end code. Make use of these two features combinely & make wonderful applications.
 
-## Search  
-Need to send key `search_key` via query params along with value.  
+## 11. Generic/Open Search  
+Need to send key `searchKey` via query params along with value.  
 In repo, define config along with models & column names to be searched on.  
 **Usage:**  
   
 
     $searchConfig = [  
         'abc' => [  
-          'model' => Abc::class,  
-          'keys' => ['name', 'field']  
+            'model' => Abc::class,  
+            'keys' => ['name', 'field']  
         ],  
         'groups' => [
-          'model' => ProductGroup::class,  
-          'keys' => ['name', 'code', 'hsn_code']  
+            'model' => ProductGroup::class,  
+            'keys' => ['name', 'code', 'hsn_code']  
        ]
     ];  
     return $this->search($searchConfig, $params);
