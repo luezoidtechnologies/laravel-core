@@ -12,7 +12,7 @@ A few cool features of this package are:
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
  10. [On the go `SELECT` & Relation filters can be passed with JSON & object operator(`->`) in query params](#10--select--relation-filters---select--where-query-over-table-columns--nested-relations) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
- 11. [Generic/Open Search](#11-generic-open-search) over a set of related objects(tables) with simple Array based config.
+ 11. [Generic/Open Search](#11-genericopen-search) over a set of related objects(tables) with simple Array based config.
 >**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo-example](https://github.com/luezoidtechnologies/laravel-core-base-repo-example "laravel-core-base-repo-example").
 
 ## Installation
