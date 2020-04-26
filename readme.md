@@ -130,7 +130,7 @@ Example: We want to search for all the minions which are created after **2020-04
     	  'http://localhost:7872/api/minions?createdAt=2020-04-25%20%2009:25:20' \
     	  -H 'cache-control: no-cache'
     You can also pass the column name in the query params over which you want the date search to be applied for. Just pass the key **dateFilterColumn** with the column name you want to use date search on (but note that the **$filterable** property must have this column specified in order to make things work).
-> Notes:
+> **Notes:**
 >1. You may specify multiple key-value pairs in the query params & all the conditions will be queried with `AND` operators.
 >2. Pass all the variables in **camelCasing** & all will be transferred into **snake_casing** internally. You may configure this transformation **turning off** by **overriding properties** `$isCamelToSnake` & `$isSnakeToCamel` and setting them to `false` in [ApiCotroller](src/Http/Controllers/ApiController.php "ApiCotroller").
 
@@ -159,7 +159,7 @@ You can pass query param `perpage=5` (to limit the per page size). Similarly, th
 For ordering the result set by a particular column, just send query param key `orderby` with the name of column & a separate key `order` with value `ASC` for ascending (or) `DESC` for sorting in descending order. By default, results are sorted in descending order.
 
 Paginating & Ordering the results has never been so easy before :)
-> Note: Any GET(index) route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination & ordering. Make sure to use this pre-built feature & save time for manually implementing these features for every endpoint & grab a pint of beer to chill.
+> **Note:** Any GET(index) route retrieving results from a Repository (eg.[MinionRepository](src/examples/Repositories/MinionRepository.php "MinionRepository")) extending `\Luezoid\Laravelcore\Repositories\EloquentBaseRepository::getAll()` is all ready with such pagination & ordering. Make sure to use this pre-built feature & save time for manually implementing these features for every endpoint & grab a pint of beer to chill.
 
 ## 5. Relationship's data
 Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is one-to-one relationship exists between Minion & Missions. See the `missions` table migrations([1](examples/migrations/2020_04_25_193714_create_missions_table.php),[2](examples/migrations/2020_04_25_193715_add_foreign_keys_to_missions_table.php)) and Model [`Mission`](examples/Models/Mission.php). To retrieve the leading mission by each Minion in GET requests(index & show), just add the relationship name in the [`MinionController`](/examples/Controllers/MinionController.php) properties as follows:
@@ -176,7 +176,7 @@ Let's assume each **Minion** leads a mission operated by **Gru** i.e. there is o
 
 That's it. Just a config thingy & you can see in the response each **Minion** object contains another object **leadingMission** which is an instance of [`Mission`](examples/Models/Mission.php) model lead by respective Minion.
 
-> Note: For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
+> **Note:** For nested relationships, you can define them appending dot(.) operator eg. `employee.designations`.
 
 ## 6. Attach Event on an action success
 Let's arrange an [Event](#) to get triggered to bring a **Minion** to **Gru's** lab whenever a new [`Mission`](examples/Models/Mission.php) is created leading by the **Minion**. Create a POST route in [`routes/api.php`](examples/routes/api.php):
@@ -256,7 +256,7 @@ This is one of the coolest feature of this package. Tired off writing query to s
         'http://localhost:7872/api/minions?selectFilters={%22cOnly%22:false,%22k%22:[%22id%22,%22name%22,%22favouriteSound%22],%22r%22:{%22missions%22:{%22k%22:[%22name%22,%22description%22]}}}' \
         -H 'cache-control: no-cache'
     would return only the columns `id`, `name` & `favourite_sound` of table `minions` and columns `name` & `description` of table `missions` in the [response](examples/Responses/json-filters-applied-on-listing-api.json). Rest redundant columns which are not needed are eleminated from the response causing substantial reduction in the size of overall response & speeding up the response time of APIs.
-    > **A Note here:** both the columns the '**local key**' & the '**foreign key**' must be present in the main & the related relation(s). This whole config can go as deeper as needed in the same way as the first relation goes.
+    > **Note:** both the columns the '**local key**' & the '**foreign key**' must be present in the main & the related relation(s). This whole config can go as deeper as needed in the same way as the first relation goes.
 
 - **Relation Filters:**
 
@@ -273,7 +273,7 @@ This is one of the coolest feature of this package. Tired off writing query to s
     Notice that we have passed query param `missions-%3Ename=Steal%20the%20Moon%21` & hence reducing our effort of writing the above custom logic altogether.
     
     So, do we deserve a **star** rating? :)
-    >Note: These Select & Relation filters can be combined together to reduce the response size as well as the size of bacck-end code. Make use of these two features combinely & make wonderful applications.
+    >**Note:** These Select & Relation filters can be combined together to reduce the response size as well as the size of bacck-end code. Make use of these two features combinely & make wonderful applications.
 
 ## Search  
 Need to send key `search_key` via query params along with value.  
