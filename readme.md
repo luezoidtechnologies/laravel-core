@@ -11,7 +11,7 @@ A few cool features of this package are:
  7. [File uploads](#7-file-upload) has never been so easy before. Upload to local filesystem or AWS S3 bucket on the go.
  8. Pre-built feature rich Service classes eg. [EnvironmentService](src/services/EnvironmentService.php), [RequestService](src/services/RequestService.php), [UtilityService](src/services/UtilityService.php), etc.
  9. Nested Related models can be queried with simple config based approach from the code components.
- 10. [On the go filters can be passed as JSON in query params](#10-json-filters---select-query-over-table-columns--nested-relations) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
+ 10. [On the go `SELECT` & Relation filters can be passed with JSON & object operator(`->`) in query params](#10-json-filters---select-query-over-table-columns--nested-relations) to select particular columns from a table(and related objects defined in models) making the API's response with less garbage data instead of writing custom query every time a new endpoint is created.
  11. On the go searching over the related objects with simple Array based config. Much more effective when a generic search has to be made over a couple of related tables.
 >**Note:** For a complete working example of all these feature with core package pre-configured is available on this repository [luezoidtechnologies/laravel-core-base-repo-example](https://github.com/luezoidtechnologies/laravel-core-base-repo-example "laravel-core-base-repo-example").
 
@@ -231,8 +231,10 @@ Moreover, in the config itself you could configure if local filesystem has to be
     AWS_DEFAULT_REGION=
 Isn't is awesome? :)
 
-## 10. JSON Filters - `SELECT` query over table columns (& nested relations)
-This is one of the coolest feature of this package. In the query params, a key-value pair can be passed with which you could simply restrict the number of columns to be present in the response for a particular model object & it's related model entities. The key to be sent is `selectFilters` & the value has to be minified JSON as explained below:
+## 10.  Select & Relation Filters - `SELECT` & `WHERE` query over table columns (& nested relations)
+This is one of the coolest feature of this package. Tired off writing query to shorten up the result set & applying filters over nested relation data? Apply such filters with simplicity with just sending simple query params. Let's see how:
+###Select Filters:
+In the query params, a key-value pair can be passed with which you could simply restrict the number of columns to be present in the response for a particular model object & it's related model entities. The key to be sent is `selectFilters` & the value has to be minified JSON as explained below:
 
 **k** is keys, **r** is relation, **cOnly** is flag to set if only count is needed or the whole relational data.
 **cOnly** flag can be used in **r** relations nestedly.
@@ -253,7 +255,22 @@ So, with the above JSON, a GET request like:
       -H 'cache-control: no-cache'
 would return only the columns `id`, `name` & `favourite_sound` of table `minions` and columns `name` & `description` of table `missions` in the [response](examples/Responses/json-filters-applied-on-listing-api.json). Rest redundant columns which are not needed are eleminated from the response causing substantial reduction in the size of overall response & speeding up the response time of APIs.
 > **A Note here:** both the columns the '**local key**' & the '**foreign key**' must be present in the main & the related relation(s). This whole config can go as deeper as needed in the same way as the first relation goes.
-  
+
+###Relation Filters:
+Let's assume we wan to find all the minions whose **Leading Mission** name is **"Steal the Moon!"**. Using `Eloquent` queries we can retrieve such results as:
+
+    $query = Minion::whereHas('missions', function ($q) {
+        $q->where('name', 'Steal the Moon!');
+    });
+Seems easy right? But wait, for this to be dynamic, you need to customarily pass the query param holding this `missions.name` column & manage yourself by writing custom logic to make such filtering work. But by using this package, you can simply do it with just sending the query params as we have seen in [Searching & Filters](#3-searching--filters). You just need to send the query params as **relation-name->column-name={string-to-be-filtered}**. See the below example:
+
+    curl -X GET \
+      'http://localhost:7872/api/minions?missions-%3Ename=Steal%20the%20Moon%21' \
+      -H 'cache-control: no-cache'
+Notice that we have passed query param `missions-%3Ename=Steal%20the%20Moon%21` & hence reducing our effort of writing the above custom logic altogether.
+So, do we deserve a :tw-1f31f: rating? :)
+>Note: These Select & Relation filters can be combined together to reduce the response size as well as the size of bacck-end code. Make use of these two features combinely & make wonderful applications.
+
 ## Search  
 Need to send key `search_key` via query params along with value.  
 In repo, define config along with models & column names to be searched on.  
@@ -261,13 +278,15 @@ In repo, define config along with models & column names to be searched on.
   
 
     $searchConfig = [  
-      'abc' => [  
-      'model' => Abc::class,  
-      'keys' => ['name', 'field']  
-     ],  
-      'groups' => ['model' => ProductGroup::class,  
-      'keys' => ['name', 'code', 'hsn_code']  
-     ]];  
+        'abc' => [  
+          'model' => Abc::class,  
+          'keys' => ['name', 'field']  
+        ],  
+        'groups' => [
+          'model' => ProductGroup::class,  
+          'keys' => ['name', 'code', 'hsn_code']  
+       ]
+    ];  
     return $this->search($searchConfig, $params);
 
   
