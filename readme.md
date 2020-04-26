@@ -1,5 +1,5 @@
 # Laravel Core Package
-Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (our) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs creating process.
+Luezoid came up with a compact way to help one creating the APIs very fast & without much hassle. Using this package, one case easily create simple CRUD operations in Laravel framework in couple of minutes with just creating a few files & configuring the components. With a lot of efforts and deep analysis of day-to-day problems (we) developers faced in the past, we came up with a sub-framework of it's own kind to simplify & fasten up the REST APIs building process.
 
 A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1-creating-crud)s.
