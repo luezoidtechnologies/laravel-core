@@ -5,7 +5,7 @@ A few cool features of this package are:
  1. Simplest & fastest way to create [CRUD](#1-creating-crud)s.
  2. Pre-built support to define table columns which are to be [specifically excluded](#2-exclude-columns-for-default-post--put-requests) before creating/updating a record(in default CRUD).
  3. Pre-built [Search & Filters](#3-searching--filters) ready to use with just configuring components.
- 4. Pre-built [Pagination & Ordering](#4-pagination--ordering) of records ready.
+ 4. Pre-built [Pagination & Ordering](#4-pagination--ordering) of records ready in a **Standard communication format**.
  5. [Relationship's data](#5-relationships-data) in the APIs(GET) is just a config thing.
  6. Better way to correctly [fire an event](#6-attach-event-on-an-action-success) upon successful completion of an action.
  7. [File uploads](#7-file-upload) has never been so easy before. Upload to local filesystem or AWS S3 bucket on the go.
