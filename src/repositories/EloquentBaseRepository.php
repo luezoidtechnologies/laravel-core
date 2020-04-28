@@ -278,7 +278,7 @@ class EloquentBaseRepository implements IBaseRepository
     {
         $_model = new $this->model;
         $tableName = $_model->getTable();
-        $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : ['created_at', 'updated_at'];
+        $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
         $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($_model->getTable());
         $searchable = array_diff($_searchable, $filterable);
         $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
@@ -330,10 +330,12 @@ class EloquentBaseRepository implements IBaseRepository
             $query = call_user_func_array([$query ? $query : $this->model, 'with'], [$params['with']]);
         }
 
-        //set order by from input or default ( created_at , desc )
-        $orderby = isset($params["inputs"]["orderby"]) ? $params["inputs"]["orderby"] : ($tableName ? $tableName . '.' . 'created_at' : 'created_at');
-        $order = isset($params["inputs"]["order"]) ? $params["inputs"]["order"] : "desc";
-        $query = call_user_func_array([$query ? $query : $this->model, 'orderby'], [$orderby, $order]);
+        if (in_array('id', $_searchable)) {
+            //set order by from input or default ( id , desc )
+            $orderby = isset($params["inputs"]["orderby"]) ? $params["inputs"]["orderby"] : ($tableName ? $tableName . '.' . 'id' : 'id');
+            $order = isset($params["inputs"]["order"]) ? $params["inputs"]["order"] : "desc";
+            $query = call_user_func_array([$query ? $query : $this->model, 'orderby'], [$orderby, $order]);
+        }
         $this->applyRelationFilters($_model, $query, $params['inputs']);
 
         //if paginate set use paginate else return all result without paginate
@@ -412,7 +414,7 @@ class EloquentBaseRepository implements IBaseRepository
                 }
             } else {
                 $tableName = $_model->getTable();
-                $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : ['created_at', 'updated_at'];
+                $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
                 $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($tableName);
                 $searchable = array_diff($_searchable, $filterable);
                 $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
