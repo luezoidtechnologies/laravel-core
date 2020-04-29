@@ -339,7 +339,7 @@ abstract class ApiController extends BaseController
      */
     public function handleCustomEndPointGet($job, $request, $additionalData = [])
     {
-
+        $this->defaultMessage = null;
         if ($this->customRequest && $response = $this->validateRequest($this->customRequest)) return $response;
         $inputs = [];
         if ($request) {
@@ -365,6 +365,7 @@ abstract class ApiController extends BaseController
      */
     public function handleCustomEndPointShow($job, $request, $column, $value)
     {
+        $this->defaultMessage = null;
         if ($this->customRequest && $response = $this->validateRequest($this->customRequest)) return $response;
 
         $params = [
