@@ -92,9 +92,6 @@ abstract class ApiController extends BaseController
      */
     public function index(Request $request)
     {
-
-        $userId = $this->getLoggedInUserId();
-
         $inputs = array_replace_recursive(
             $request->all(),
             $request->route()->parameters()
@@ -103,6 +100,7 @@ abstract class ApiController extends BaseController
         if ($this->isCamelToSnake) {
             $inputs = UtilityService::fromCamelToSnake($inputs);
             if (isset($inputs['date_filter_column'])) {
+                // i.e. if custom date_filter_column is passed from frontend, then transform it
                 $inputs['date_filter_column'] = Str::snake($inputs['date_filter_column']);
             }
         }
@@ -110,15 +108,6 @@ abstract class ApiController extends BaseController
         $result = $this->repo->{$this->indexCall}(["with" => $this->indexWith, "inputs" => $inputs]);
 
         return $this->standardResponse($result);
-    }
-
-    /**
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getLoggedInUserId()
-    {
-        return EnvironmentService::getLoggedInUserId();
     }
 
     /**
@@ -138,6 +127,14 @@ abstract class ApiController extends BaseController
             "data" => $data && method_exists($data, 'toArray') ? $data->toArray() : $data,
             "type" => $type
         ], $httpCode);
+    }
+
+    /**
+     * @return int|null
+     */
+    protected function getLoggedInUserId()
+    {
+        return EnvironmentService::getLoggedInUserId();
     }
 
     /**
@@ -334,10 +331,9 @@ abstract class ApiController extends BaseController
     }
 
     /**
-     * @return mixed
-     * @throws \Exception
+     * @return null|object
      */
-    public function getLoggedInUser()
+    protected function getLoggedInUser()
     {
         return EnvironmentService::getLoggedInUser();
     }

@@ -8,11 +8,11 @@
 
 namespace Luezoid\Laravelcore\Services;
 
-
 class EnvironmentService
 {
     private static $loggedInUserId;
     private static $loggedInUser;
+    private static $isLoaded = false;
 
     public function __construct()
     {
@@ -20,12 +20,11 @@ class EnvironmentService
     }
 
     /**
-     * @return mixed
-     * @throws \Exception
+     * @return null|integer
      */
     public static function getLoggedInUserId()
     {
-        if (is_null(self::$loggedInUserId)) {
+        if (!self::$isLoaded) {
             self::load();
         }
         return self::$loggedInUserId;
@@ -37,17 +36,19 @@ class EnvironmentService
             self::$loggedInUser = auth('api')->user();
             self::$loggedInUserId = self::$loggedInUser->id ?? null;
         } catch (\Exception $exception) {
-            throw $exception;
+            // declaring the variables as null as they are already loaded
+            self::$loggedInUserId = self::$loggedInUser = null;
+        } finally {
+            self::$isLoaded = true;
         }
     }
 
     /**
-     * @return mixed
-     * @throws \Exception
+     * @return null|object
      */
     public static function getLoggedInUser()
     {
-        if (is_null(self::$loggedInUser)) {
+        if (!self::$isLoaded) {
             self::load();
         }
         return self::$loggedInUser;
