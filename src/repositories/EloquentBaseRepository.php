@@ -8,7 +8,6 @@
 
 namespace Luezoid\Laravelcore\Repositories;
 
-use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -73,6 +72,11 @@ class EloquentBaseRepository implements IBaseRepository
         return $item;
     }
 
+    /**
+     * @param $id
+     * @param null $params
+     * @return mixed
+     */
     public function find($id, $params = null)
     {
         $query = null;
@@ -140,6 +144,11 @@ class EloquentBaseRepository implements IBaseRepository
         return $data;
     }
 
+    /**
+     * @param $params
+     * @param bool $first
+     * @return mixed|null
+     */
     public function findByParamValue($params, $first = true)
     {
         $query = null;
@@ -178,17 +187,32 @@ class EloquentBaseRepository implements IBaseRepository
         return $query;
     }
 
+    /**
+     * @param $value
+     * @return bool|int
+     */
     public function _checkInputValueType($value)
     {
         return is_string($value) ? strlen($value) : !empty($value);
     }
 
+    /**
+     * @param $str
+     * @return bool
+     */
     public function isJson($str)
     {
         $json = json_decode($str);
         return $json && $str != $json;
     }
 
+    /**
+     * @param $query
+     * @param $params
+     * @param $tableName
+     * @param null $model
+     * @return mixed
+     */
     private function addWhereToGetAll($query, $params, $tableName, $model = null)
     {
         foreach ($params as $param => $value) {
@@ -203,6 +227,10 @@ class EloquentBaseRepository implements IBaseRepository
         return $query;
     }
 
+    /**
+     * @param $object
+     * @return mixed
+     */
     public function findOrCreate($object)
     {
         $obj = $this->filter($object)->first();
@@ -216,6 +244,12 @@ class EloquentBaseRepository implements IBaseRepository
 
     }
 
+    /**
+     * @param $data
+     * @param bool $first
+     * @param array $fields
+     * @return mixed
+     */
     public function filter($data, $first = false, $fields = [])
     {
         return call_user_func_array([call_user_func_array([$this->model, 'where'], [$data]), $first ? 'first' : 'get'], $first || !$fields ? [] : [$fields]);
@@ -223,6 +257,8 @@ class EloquentBaseRepository implements IBaseRepository
 
     /**
      * @array $data
+     * @param $data
+     * @return mixed
      */
     public function create($data)
     {
@@ -234,11 +270,23 @@ class EloquentBaseRepository implements IBaseRepository
         return $item;
     }
 
+    /**
+     * @param $condition
+     * @param $update
+     * @param bool $in
+     * @return mixed
+     */
     public function updateAll($condition, $update, $in = false)
     {
         return call_user_func_array([$this->model, 'where' . ($in ? 'In' : '')], $in ? $condition : [$condition])->update($update);
     }
 
+    /**
+     * @param $searchConfig
+     * @param array $params
+     * @return array
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function search($searchConfig, $params = [])
     {
         $searchKey = $params['inputs']['search_key'] ?? null;
@@ -274,6 +322,12 @@ class EloquentBaseRepository implements IBaseRepository
         return $result;
     }
 
+    /**
+     * @param array $params
+     * @param null $query
+     * @return array
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function getAll($params = [], $query = null)
     {
         $_model = new $this->model;
@@ -324,7 +378,6 @@ class EloquentBaseRepository implements IBaseRepository
         $page = intval(Arr::get($params['inputs'], 'page'));
         $perpage = Arr::get($params['inputs'], 'perpage');
 
-
         //if set with
         if (isset($params["with"]) && count($params["with"])) {
             $query = call_user_func_array([$query ? $query : $this->model, 'with'], [$params['with']]);
@@ -352,6 +405,27 @@ class EloquentBaseRepository implements IBaseRepository
 
     }
 
+    /**
+     * @param $query
+     * @param $keys
+     * @param $tableName
+     * @param null $model
+     * @return mixed
+     */
+    private function addWhereNullToGetAll($query, $keys, $tableName, $model = null)
+    {
+
+        foreach ($keys as $key => $value) {
+            $query = call_user_func_array([$query ? $query : $model ?? $this->model, 'whereNull'], [($tableName ? $tableName . '.' . $key : $key)]);
+        }
+        return $query;
+    }
+
+    /**
+     * @param $model
+     * @param $query
+     * @param $inputs
+     */
     private function applyRelationFilters($model, $query, $inputs)
     {
         $relationFilters = [];
@@ -396,6 +470,11 @@ class EloquentBaseRepository implements IBaseRepository
         $this->applySelectFilters($query, $selectFilters);
     }
 
+    /**
+     * @param $query
+     * @param $filters
+     * @param $model
+     */
     private function applyFilters(&$query, $filters, $model)
     {
         $_model = new $model;
@@ -440,15 +519,10 @@ class EloquentBaseRepository implements IBaseRepository
         }
     }
 
-    private function addWhereNullToGetAll($query, $keys, $tableName, $model = null)
-    {
-
-        foreach ($keys as $key => $value) {
-            $query = call_user_func_array([$query ? $query : $model ?? $this->model, 'whereNull'], [($tableName ? $tableName . '.' . $key : $key)]);
-        }
-        return $query;
-    }
-
+    /**
+     * @param $relationFilters
+     * @param $selectFilters
+     */
     protected function populateWhereConditionsForSelectFilters($relationFilters, &$selectFilters)
     {
         foreach ($relationFilters as $relationKey => $relationValue) {
@@ -480,8 +554,11 @@ class EloquentBaseRepository implements IBaseRepository
         }
     }
 
-    //prepare result for paginate select
-
+    /**
+     * @param $query
+     * @param $filters
+     * @param null $relation
+     */
     protected function applySelectFilters(&$query, $filters, $relation = null)
     {
         if (is_array($filters['k'] ?? null)) {
@@ -521,6 +598,11 @@ class EloquentBaseRepository implements IBaseRepository
         }
     }
 
+    /**
+     * @param $collection
+     * @return array
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function result_for_paginate($collection)
     {
         return [

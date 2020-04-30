@@ -121,6 +121,13 @@ abstract class ApiController extends BaseController
         return EnvironmentService::getLoggedInUserId();
     }
 
+    /**
+     * @param $data
+     * @param null $message
+     * @param int $httpCode
+     * @param null $type
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function standardResponse($data, $message = null, $httpCode = 200, $type = null)
     {
         if ($httpCode == 200 && $data && $this->isSnakeToCamel && (is_array($data) || is_object($data))) {
@@ -138,6 +145,7 @@ abstract class ApiController extends BaseController
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function show(Request $request, $id)
     {
@@ -152,6 +160,10 @@ abstract class ApiController extends BaseController
         return $this->standardResponse($result);
     }
 
+    /**
+     * @param $method
+     * @return bool|\Illuminate\Http\JsonResponse
+     */
     protected function validateRequest($method)
     {
         /**
@@ -197,6 +209,11 @@ abstract class ApiController extends BaseController
         ]);
     }
 
+    /**
+     * @param $data
+     * @param $modelKey
+     * @return mixed
+     */
     private function requestSanitizer($data, $modelKey)
     {
         // removes keys which cannot be updated as defined in model class variable
@@ -215,6 +232,12 @@ abstract class ApiController extends BaseController
         return $data;
     }
 
+    /**
+     * @param $request
+     * @param $jobClass
+     * @param $params
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function executeJob($request, $jobClass, $params)
     {
         $job = new $jobClass($params);
@@ -229,6 +252,12 @@ abstract class ApiController extends BaseController
 
     }
 
+    /**
+     * @param $request
+     * @param $job
+     * @param $params
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function dispatchJob($request, $job, $params)
     {
         $result = $this->dispatch($job);
@@ -291,6 +320,9 @@ abstract class ApiController extends BaseController
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Auth\Authenticatable|\Illuminate\Http\JsonResponse|null
+     */
     public function getUserByToken()
     {
 
@@ -301,6 +333,10 @@ abstract class ApiController extends BaseController
         return $user;
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getLoggedInUser()
     {
         return EnvironmentService::getLoggedInUser();

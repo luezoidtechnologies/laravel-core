@@ -260,7 +260,7 @@ This is one of the coolest feature of this package. Tired off writing query to s
 
 - **Relation Filters:**
 
-    Let's assume we wan to find all the minions whose **Leading Mission** name is **"Steal the Moon!"**. Using `Eloquent` queries we can retrieve such results as:
+    Let's assume we want to find all the minions whose **Leading Mission** name is **"Steal the Moon!"**. Using `Eloquent` queries we can retrieve such results as:
 
       $query = Minion::whereHas('missions', function ($q) {
           $q->where('name', 'Steal the Moon!');

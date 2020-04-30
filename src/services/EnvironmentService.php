@@ -8,9 +8,6 @@
 
 namespace Luezoid\Laravelcore\Services;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-
 
 class EnvironmentService
 {

@@ -10,7 +10,6 @@ namespace Luezoid\Laravelcore\Services;
 
 
 use Luezoid\Laravelcore\Repositories\FileRepository;
-use Ramsey\Uuid\Uuid;
 
 class FileService
 {
