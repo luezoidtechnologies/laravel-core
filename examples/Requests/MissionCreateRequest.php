@@ -2,10 +2,10 @@
 
 namespace Luezoid\Http\Requests;
 
-use Luezoid\Models\Minion;
-use Luezoid\Models\Mission;
 use Luezoid\Laravelcore\Requests\BaseRequest;
 use Luezoid\Laravelcore\Services\RequestService;
+use Luezoid\Models\Minion;
+use Luezoid\Models\Mission;
 
 class MissionCreateRequest extends BaseRequest
 {

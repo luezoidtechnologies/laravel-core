@@ -9,8 +9,8 @@
 namespace Luezoid\Repositories;
 
 
-use Luezoid\Models\Mission;
 use Luezoid\Laravelcore\Repositories\EloquentBaseRepository;
+use Luezoid\Models\Mission;
 
 class MissionRepository extends EloquentBaseRepository
 {

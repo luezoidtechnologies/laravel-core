@@ -1,48 +1,54 @@
 {
-  "name": "luezoid/laravel-core",
-  "description": "A feature rich Laravel package which provides fast & flexible way to quickly build powerful RESTful APIs. Various other features like queries & filters over nested complex relationships between models can be done on the go using this package. Read the docs for more info.",
-  "keywords": ["laravel", "laravel-package", "luezoid", "luezoid-laravel-core", "api"],
-  "license": "MIT",
-  "support": {
-    "issues": "https://github.com/luezoidtechnologies/laravel-core/issues",
-    "source": "https://github.com/luezoidtechnologies/laravel-core"
-  },
-  "authors": [
-    {
-      "name": "Keshav Ashta",
-      "email": "keshav@luezoid.com"
+    "name": "luezoid/laravel-core",
+    "description": "A feature rich Laravel package which provides fast & flexible way to quickly build powerful RESTful APIs. Various other features like queries & filters over nested complex relationships between models can be done on the go using this package. Read the docs for more info.",
+    "keywords": [
+        "laravel",
+        "laravel-package",
+        "luezoid",
+        "luezoid-laravel-core",
+        "api"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/luezoidtechnologies/laravel-core/issues",
+        "source": "https://github.com/luezoidtechnologies/laravel-core"
     },
-    {
-      "name": "Abhishek Mishra",
-      "email": "abhishek@luezoid.com"
+    "authors": [
+        {
+            "name": "Keshav Ashta",
+            "email": "keshav@luezoid.com"
+        },
+        {
+            "name": "Abhishek Mishra",
+            "email": "abhishek@luezoid.com"
+        },
+        {
+            "name": "Manoj Singh Rawat",
+            "email": "manoj@luezoid.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": ">=5.1",
+        "intervention/image": "^2.4",
+        "aws/aws-sdk-php-laravel": "^3.1",
+        "ext-json": "*"
     },
-    {
-      "name": "Manoj Singh Rawat",
-      "email": "manoj@luezoid.com"
+    "require-dev": {
+        "laravel/framework": "^5.0|^6.0|^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Luezoid\\Laravelcore\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Luezoid\\Laravelcore\\LaravelcoreServiceProvider"
+            ],
+            "aliases": {
+                "luezoid-laravel-core": "Luezoid\\Laravelcore\\Facades\\Laravelcore"
+            }
+        }
     }
-  ],
-  "require": {
-    "illuminate/support": ">=5.1",
-    "intervention/image": "^2.4",
-    "aws/aws-sdk-php-laravel": "^3.1",
-    "ext-json": "*"
-  },
-  "require-dev": {
-    "laravel/framework": "^5.0|^6.0|^7.0|^8.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Luezoid\\Laravelcore\\": "src/"
-    }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Luezoid\\Laravelcore\\LaravelcoreServiceProvider"
-      ],
-      "aliases": {
-        "luezoid-laravel-core": "Luezoid\\Laravelcore\\Facades\\Laravelcore"
-      }
-    }
-  }
 }

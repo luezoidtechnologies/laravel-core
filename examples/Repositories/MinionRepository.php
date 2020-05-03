@@ -8,8 +8,8 @@
 
 namespace Luezoid\Repositories;
 
-use Luezoid\Models\Minion;
 use Luezoid\Laravelcore\Repositories\EloquentBaseRepository;
+use Luezoid\Models\Minion;
 
 class MinionRepository extends EloquentBaseRepository
 {

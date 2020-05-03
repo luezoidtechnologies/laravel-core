@@ -3,8 +3,8 @@
 namespace Luezoid\Jobs;
 
 use Luezoid\Events\BringMinionToLabEvent;
-use Luezoid\Repositories\MissionRepository;
 use Luezoid\Laravelcore\Jobs\BaseJob;
+use Luezoid\Repositories\MissionRepository;
 
 class MissionCreateJob extends BaseJob
 {

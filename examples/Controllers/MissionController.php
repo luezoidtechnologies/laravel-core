@@ -2,11 +2,11 @@
 
 namespace Luezoid\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Luezoid\Http\Requests\MissionCreateRequest;
 use Luezoid\Jobs\MissionCreateJob;
-use Luezoid\Repositories\MissionRepository;
-use Illuminate\Http\Request;
 use Luezoid\Laravelcore\Http\Controllers\ApiController;
+use Luezoid\Repositories\MissionRepository;
 
 class MissionController extends ApiController
 {

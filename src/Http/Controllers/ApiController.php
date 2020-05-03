@@ -130,14 +130,6 @@ abstract class ApiController extends BaseController
     }
 
     /**
-     * @return int|null
-     */
-    protected function getLoggedInUserId()
-    {
-        return EnvironmentService::getLoggedInUserId();
-    }
-
-    /**
      * global show method  , return selected $id row from Specific Model
      * @param Request $request
      * @param $id
@@ -331,14 +323,6 @@ abstract class ApiController extends BaseController
     }
 
     /**
-     * @return null|object
-     */
-    protected function getLoggedInUser()
-    {
-        return EnvironmentService::getLoggedInUser();
-    }
-
-    /**
      * Method which can be used as substitute for the Custom POST/PUT routes other than the resource route
      * @param $job
      * @param null $request
@@ -410,6 +394,22 @@ abstract class ApiController extends BaseController
         }
 
         return $this->executeJob($request, $job, $params);
+    }
+
+    /**
+     * @return int|null
+     */
+    protected function getLoggedInUserId()
+    {
+        return EnvironmentService::getLoggedInUserId();
+    }
+
+    /**
+     * @return null|object
+     */
+    protected function getLoggedInUser()
+    {
+        return EnvironmentService::getLoggedInUser();
     }
 
     protected function notImplemented($data, $message = null)

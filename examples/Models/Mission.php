@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Mission
- * 
+ *
  * @property int $id
  * @property string $name
  * @property int $lead_by_id
  * @property string $description
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * 
+ *
  * @property Minion $lead_by
  * @property Collection|Minion[] $minions
  *
@@ -27,27 +27,27 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Mission extends Model
 {
-	protected $table = 'missions';
+    protected $table = 'missions';
 
-	protected $casts = [
-		'lead_by_id' => 'int'
-	];
+    protected $casts = [
+        'lead_by_id' => 'int'
+    ];
 
-	protected $fillable = [
-		'name',
-		'lead_by_id',
-		'description'
-	];
+    protected $fillable = [
+        'name',
+        'lead_by_id',
+        'description'
+    ];
 
-	public function lead_by()
-	{
-		return $this->belongsTo(Minion::class, 'lead_by_id');
-	}
+    public function lead_by()
+    {
+        return $this->belongsTo(Minion::class, 'lead_by_id');
+    }
 
-	public function minions()
-	{
-		return $this->belongsToMany(Minion::class, 'minion_mission_mapping')
-					->withPivot('id')
-					->withTimestamps();
-	}
+    public function minions()
+    {
+        return $this->belongsToMany(Minion::class, 'minion_mission_mapping')
+            ->withPivot('id')
+            ->withTimestamps();
+    }
 }

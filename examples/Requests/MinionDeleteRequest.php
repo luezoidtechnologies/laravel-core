@@ -4,9 +4,9 @@
 namespace Luezoid\Http\Request;
 
 
-use Luezoid\Models\Minion;
 use Luezoid\Laravelcore\Requests\BaseRequest;
 use Luezoid\Laravelcore\Services\RequestService;
+use Luezoid\Models\Minion;
 
 class MinionDeleteRequest extends BaseRequest
 {

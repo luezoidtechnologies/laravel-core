@@ -11,9 +11,9 @@ namespace Luezoid\Http\Controllers;
 use Luezoid\Http\Request\MinionCreateRequest;
 use Luezoid\Http\Request\MinionDeleteRequest;
 use Luezoid\Http\Request\MinionUpdateRequest;
-use Luezoid\Repositories\MinionRepository;
 use Luezoid\Laravelcore\Http\Controllers\ApiController;
 use Luezoid\Laravelcore\Jobs\BaseJob;
+use Luezoid\Repositories\MinionRepository;
 
 class MinionController extends ApiController
 {

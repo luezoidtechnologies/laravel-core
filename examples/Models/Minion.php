@@ -26,31 +26,26 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Minion extends Model
 {
-    protected $table = 'minions';
-
-    protected $casts = [
-        'total_eyes' => 'int',
-        'has_hairs' => 'bool'
-    ];
-
-    protected $fillable = [
-        'name',
-        'total_eyes',
-        'favourite_sound',
-        'has_hairs'
-    ];
-
     public $filterable = [
         'total_eyes',
         'has_hairs'
     ];
-
     public $createExcept = [
         'id'
     ];
-
     public $updateExcept = [
         'total_eyes',
+        'has_hairs'
+    ];
+    protected $table = 'minions';
+    protected $casts = [
+        'total_eyes' => 'int',
+        'has_hairs' => 'bool'
+    ];
+    protected $fillable = [
+        'name',
+        'total_eyes',
+        'favourite_sound',
         'has_hairs'
     ];
 
