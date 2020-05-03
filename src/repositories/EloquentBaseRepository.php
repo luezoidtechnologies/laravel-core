@@ -28,9 +28,11 @@ class EloquentBaseRepository implements IBaseRepository
      * @var String;
      */
     public $model = '';
-    public $selectFilterType = self::SELECT_FILTER_TYPE_WHERE_HAS;
+    protected $selectFilterType = self::SELECT_FILTER_TYPE_WHERE_HAS;
 
     protected $indexTransformer;
+    protected $enableRelationFilters = true;    // by default RELATION filters are ON
+    protected $enableSelectFilters = true;      // by default SELECT filters are ON
 
     /**
      * @param $data
@@ -389,7 +391,7 @@ class EloquentBaseRepository implements IBaseRepository
             $order = isset($params["inputs"]["order"]) ? $params["inputs"]["order"] : "desc";
             $query = call_user_func_array([$query ? $query : $this->model, 'orderby'], [$orderby, $order]);
         }
-        $this->applyRelationFilters($_model, $query, $params['inputs']);
+        $this->applyRelationAndSelectFilters($_model, $query, $params['inputs']);
 
         //if paginate set use paginate else return all result without paginate
         if ($page < 0) {
@@ -426,9 +428,8 @@ class EloquentBaseRepository implements IBaseRepository
      * @param $query
      * @param $inputs
      */
-    private function applyRelationFilters($model, $query, $inputs)
+    private function applyRelationAndSelectFilters($model, $query, $inputs)
     {
-        $relationFilters = [];
         $selectFilters = Arr::get($inputs, 'select_filters', '[]');
         if ($this->isJson($selectFilters)) {
             $selectFilters = json_decode($selectFilters, true);
@@ -437,37 +438,43 @@ class EloquentBaseRepository implements IBaseRepository
             $selectFilters = [];
         }
         unset($inputs['select_filters']);
-        foreach ($inputs as $key => $value) {
-            if (strpos($key, '->') == false) {
-                continue;   // not adding base keys
-            }
-            $keysArray = explode('->', $key);   // exploding
-            $lastRelation = &$relationFilters;          // initially setting lastRelation to blank array as reference
-            $lastRelationModel = $model;        // TODO optimize this as common model is still getting validated again
-            $keysCount = count($keysArray) - 1;
-            foreach ($keysArray as $index => $relation) {
-                if ($keysCount != $index) {
-                    if (!method_exists($lastRelationModel, $relation)) {
-                        throw new BadRequestHttpException("Invalid relation in query params: $relation");
-                        continue;
+
+        $relationFilters = [];
+        if ($this->enableRelationFilters) {
+            foreach ($inputs as $key => $value) {
+                if (strpos($key, '->') == false) {
+                    continue;   // not adding base keys
+                }
+                $keysArray = explode('->', $key);   // exploding
+                $lastRelation = &$relationFilters;          // initially setting lastRelation to blank array as reference
+                $lastRelationModel = $model;        // TODO optimize this as common model is still getting validated again
+                $keysCount = count($keysArray) - 1;
+                foreach ($keysArray as $index => $relation) {
+                    if ($keysCount != $index) {
+                        if (!method_exists($lastRelationModel, $relation)) {
+                            throw new BadRequestHttpException("Invalid relation in query params: $relation");
+                            continue;
+                        }
+                        $lastRelationModel = get_class((new $lastRelationModel)->{$relation}()->getRelated());
                     }
-                    $lastRelationModel = get_class((new $lastRelationModel)->{$relation}()->getRelated());
+                    if (!($lastRelation[$relation] ?? false)) {
+                        $lastRelation[$relation] = [];  // adding relation if not exist
+                    }
+                    $lastRelation = &$lastRelation[$relation];  // moving pointer ahead to point & add to the last node
                 }
-                if (!($lastRelation[$relation] ?? false)) {
-                    $lastRelation[$relation] = [];  // adding relation if not exist
-                }
-                $lastRelation = &$lastRelation[$relation];  // moving pointer ahead to point & add to the last node
+                $lastRelation = $value;         // at last setting the last node with the value provided in input
+                unset($lastRelation);           // unsetting the variable
             }
-            $lastRelation = $value;         // at last setting the last node with the value provided in input
-            unset($lastRelation);           // unsetting the variable
+            $this->applyRelationFilters($query, $relationFilters, $this->model);
         }
-        $this->applyFilters($query, $relationFilters, $this->model);
 
-        // populating $selectFilters as per relation filters
-        $this->populateWhereConditionsForSelectFilters($relationFilters, $selectFilters);
+        if ($this->enableSelectFilters) {
+            // populating $selectFilters as per relation filters
+            $this->populateWhereConditionsForSelectFilters($relationFilters, $selectFilters);
 
-        // applying select filters
-        $this->applySelectFilters($query, $selectFilters);
+            // applying select filters
+            $this->applySelectFilters($query, $selectFilters);
+        }
     }
 
     /**
@@ -475,7 +482,7 @@ class EloquentBaseRepository implements IBaseRepository
      * @param $filters
      * @param $model
      */
-    private function applyFilters(&$query, $filters, $model)
+    private function applyRelationFilters(&$query, $filters, $model)
     {
         $_model = new $model;
         foreach ($filters as $relationKey => $value) {
@@ -483,12 +490,12 @@ class EloquentBaseRepository implements IBaseRepository
                 if ($this->selectFilterType == 'whereHas') {
                     $query->{$this->selectFilterType}($relationKey, function ($q) use ($relationKey, $value, $_model) {
                         $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyFilters($q, $value, $relationKeyClass);
+                        $this->applyRelationFilters($q, $value, $relationKeyClass);
                     });
                 } else {
                     $query->{$this->selectFilterType}([$relationKey => function ($q) use ($relationKey, $value, $_model) {
                         $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyFilters($q, $value, $relationKeyClass);
+                        $this->applyRelationFilters($q, $value, $relationKeyClass);
                     }]);
                 }
             } else {
