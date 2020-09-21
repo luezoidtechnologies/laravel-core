@@ -8,15 +8,17 @@
 
 namespace Luezoid\Laravelcore\Repositories;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Contracts\IBaseRepository;
 use Luezoid\Laravelcore\Exceptions\AppException;
-use Luezoid\Laravelcore\Services\UtilityService;
+use Luezoid\Laravelcore\Service\UtilityService;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class EloquentBaseRepository implements IBaseRepository
 {
@@ -48,7 +50,7 @@ class EloquentBaseRepository implements IBaseRepository
                 return $data;
             }
             return null;
-        } catch (\Exception $exception) {
+        } catch (Throwable $exception) {
             throw new AppException($exception->getMessage(), 500);
         }
     }
@@ -157,7 +159,7 @@ class EloquentBaseRepository implements IBaseRepository
         $_model = new $this->model;
         $tableName = property_exists($_model, 'table') ? ($_model)->table : null;
         $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
-        $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($_model->getTable());
+        $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : UtilityService::getColumnsForTable($this->model);
         $searchable = array_diff($_searchable, $filterable);
 
         if (isset($params["with"]) && count($params["with"])) {
@@ -165,9 +167,7 @@ class EloquentBaseRepository implements IBaseRepository
         }
 
         if ($where = Arr::only($params["inputs"], $searchable)) {
-
             foreach ($where as $param => $value) {
-
                 if ($this->_checkInputValueType($value)) {
                     if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true))))
                         $query = call_user_func_array([$query ? $query : $this->model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value]);
@@ -287,7 +287,7 @@ class EloquentBaseRepository implements IBaseRepository
      * @param $searchConfig
      * @param array $params
      * @return array
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function search($searchConfig, $params = [])
     {
@@ -328,24 +328,20 @@ class EloquentBaseRepository implements IBaseRepository
      * @param array $params
      * @param null $query
      * @return array
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function getAll($params = [], $query = null)
     {
         $_model = new $this->model;
-        $tableName = $_model->getTable();
+        $tableName = UtilityService::getModelTableName($this->model);
         $filterable = property_exists($_model, 'filterable') ? ($_model)->filterable : [];
-        $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($_model->getTable());
+        $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : UtilityService::getColumnsForTable($this->model);
         $searchable = array_diff($_searchable, $filterable);
         $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
 
-
         //use filter from inputs (?user_id=1&model=1389)
         if ($where = Arr::only($params["inputs"], $searchable)) {
-
             foreach ($where as $param => $value) {
-
-
                 if ($this->_checkInputValueType($value)) {
                     if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true)))) {
                         $query = call_user_func_array([$query ? $query : $this->model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value]);
@@ -428,7 +424,7 @@ class EloquentBaseRepository implements IBaseRepository
      * @param $query
      * @param $inputs
      */
-    private function applyRelationAndSelectFilters($model, $query, $inputs)
+    protected function applyRelationAndSelectFilters($model, $query, $inputs)
     {
         $selectFilters = Arr::get($inputs, 'select_filters', '[]');
         if ($this->isJson($selectFilters)) {
@@ -485,17 +481,17 @@ class EloquentBaseRepository implements IBaseRepository
     private function applyRelationFilters(&$query, $filters, $model)
     {
         $_model = new $model;
-        foreach ($filters as $relationKey => $value) {
-            if (is_array($value)) {
+        foreach ($filters as $relationKey => $value1) {
+            if (is_array($value1)) {
                 if ($this->selectFilterType == 'whereHas') {
-                    $query->{$this->selectFilterType}($relationKey, function ($q) use ($relationKey, $value, $_model) {
+                    $query->{$this->selectFilterType}($relationKey, function ($q) use ($relationKey, $value1, $_model) {
                         $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyRelationFilters($q, $value, $relationKeyClass);
+                        $this->applyRelationFilters($q, $value1, $relationKeyClass);
                     });
                 } else {
-                    $query->{$this->selectFilterType}([$relationKey => function ($q) use ($relationKey, $value, $_model) {
+                    $query->{$this->selectFilterType}([$relationKey => function ($q) use ($relationKey, $value1, $_model) {
                         $relationKeyClass = get_class($_model->{$relationKey}()->getRelated());
-                        $this->applyRelationFilters($q, $value, $relationKeyClass);
+                        $this->applyRelationFilters($q, $value1, $relationKeyClass);
                     }]);
                 }
             } else {
@@ -504,14 +500,14 @@ class EloquentBaseRepository implements IBaseRepository
                 $_searchable = property_exists($_model, 'searchable') ? ($_model)->searchable : Schema::getColumnListing($tableName);
                 $searchable = array_diff($_searchable, $filterable);
                 $whereNullKeys = property_exists($_model, 'whereNullKeys') ? ($_model)->whereNullKeys : [];
-                $filter = [$relationKey => $value];
+                $filter = [$relationKey => $value1];
                 if ($where = Arr::only($filter, $searchable)) {
-                    foreach ($where as $param => $value) {
-                        if ($this->_checkInputValueType($value)) {
-                            if (is_array($value) || ($this->isJson($value) && ($value = json_decode($value, true)))) {
-                                $query = call_user_func_array([$query ? $query : $model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value]);
+                    foreach ($where as $param => $value2) {
+                        if ($this->_checkInputValueType($value2)) {
+                            if (is_array($value2) || ($this->isJson($value2) && ($value2 = json_decode($value2, true)))) {
+                                $query = call_user_func_array([$query ? $query : $model, 'whereIn'], [($tableName ? $tableName . '.' . $param : $param), $value2]);
                             } else
-                                $query = call_user_func_array([$query ? $query : $model, 'where'], [($tableName ? $tableName . '.' . $param : $param), 'like', '%' . $value . '%']);
+                                $query = call_user_func_array([$query ? $query : $model, 'where'], [($tableName ? $tableName . '.' . $param : $param), 'like', '%' . $value2 . '%']);
                         }
                     }
                 }
@@ -608,7 +604,7 @@ class EloquentBaseRepository implements IBaseRepository
     /**
      * @param $collection
      * @return array
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function result_for_paginate($collection)
     {
@@ -638,7 +634,7 @@ class EloquentBaseRepository implements IBaseRepository
             $result = $this->model::updateOrCreate($createConditionalParams, $updateParams);
             DB::commit();
             return $result;
-        } catch (\Exception $exception) {
+        } catch (Throwable $exception) {
             DB::rollBack();
             throw new AppException($exception->getMessage());
         }

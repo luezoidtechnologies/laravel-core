@@ -6,16 +6,22 @@
  * Time: 1:53 AM
  */
 
-namespace Luezoid\Laravelcore\Services;
+namespace Luezoid\Laravelcore\Service;
 
 
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use DatePeriod;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Rules\RequestSanitizer;
 
 class UtilityService
 {
+    public $tableNameCaching = false;
+    public $tableColCaching = false;
+
     public static function is_json($string, $return_data = false)
     {
         $data = json_decode($string);
@@ -75,7 +81,7 @@ class UtilityService
 
     public static function getDays($dayName)
     {
-        return new \DatePeriod(
+        return new DatePeriod(
             Carbon::parse("first $dayName of this month"),
             CarbonInterval::week(),
             Carbon::parse("first $dayName of next month")
@@ -90,8 +96,19 @@ class UtilityService
         ]);
     }
 
-    public static function getModelTableName($model)
+    public static function getModelTableName(string $modelClass)
     {
-        return (new $model)->getTable();
+        $cacheKey = 'LZD_TABLE_' . $modelClass;
+        return Cache::remember($cacheKey, 600, function () use ($modelClass) {
+            return (new $modelClass)->getTable();
+        });
+    }
+
+    public static function getColumnsForTable(string $modelClass)
+    {
+        $cacheKey = 'LZD_TABLE_COL_' . $modelClass;
+        return Cache::remember($cacheKey, 600, function () use ($modelClass) {
+            return Schema::getColumnListing(self::getModelTableName($modelClass));
+        });
     }
 }
