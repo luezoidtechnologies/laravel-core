@@ -6,7 +6,7 @@
  * Time: 1:53 AM
  */
 
-namespace Luezoid\Laravelcore\Service;
+namespace Luezoid\Laravelcore\Services;
 
 
 use Carbon\Carbon;
