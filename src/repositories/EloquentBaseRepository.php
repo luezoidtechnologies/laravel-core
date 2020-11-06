@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Contracts\IBaseRepository;
 use Luezoid\Laravelcore\Exceptions\AppException;
-use Luezoid\Laravelcore\Service\UtilityService;
+use Luezoid\Laravelcore\Services\UtilityService;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
