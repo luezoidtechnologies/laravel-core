@@ -44,7 +44,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Luezoid\\Laravelcore\\LaravelcoreServiceProvider"
+                "Luezoid\\Laravelcore\\CoreServiceProvider"
             ],
             "aliases": {
                 "luezoid-laravel-core": "Luezoid\\Laravelcore\\Facades\\Laravelcore"
