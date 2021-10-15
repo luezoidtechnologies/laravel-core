@@ -6,7 +6,7 @@
  * Time: 10:56 PM
  */
 
-namespace Luezoid\Laravelcore\Files\Services;
+namespace Luezoid\Laravelcore\Services\Files;
 
 
 use Luezoid\Laravelcore\Contracts\IFile;
