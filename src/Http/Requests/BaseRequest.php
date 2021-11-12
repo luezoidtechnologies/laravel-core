@@ -6,7 +6,7 @@
  * Time: 2:23 PM
  */
 
-namespace Luezoid\Laravelcore\Requests;
+namespace Luezoid\Laravelcore\Http\Requests;
 
 
 use Illuminate\Foundation\Http\FormRequest;

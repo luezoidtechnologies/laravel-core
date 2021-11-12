@@ -3,11 +3,11 @@
 namespace Luezoid\Laravelcore;
 
 use Illuminate\Support\ServiceProvider;
-use Luezoid\Laravelcore\Console\Commands\FilesInitCommand;
+use Luezoid\Laravelcore\Console\Command\FilesInitCommand;
 use Luezoid\Laravelcore\Facades\Laravelcore;
 
 
-class LaravelcoreServiceProvider extends ServiceProvider
+class CoreServiceProvider extends ServiceProvider
 {
     protected $commands = [
         FilesInitCommand::class

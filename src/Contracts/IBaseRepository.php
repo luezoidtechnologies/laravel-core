@@ -8,7 +8,6 @@
 
 namespace Luezoid\Laravelcore\Contracts;
 
-
 interface IBaseRepository
 {
     public function create($data);

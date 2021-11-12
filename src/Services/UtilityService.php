@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Rules\RequestSanitizer;
-
+//
 class UtilityService
 {
     public $tableNameCaching = false;

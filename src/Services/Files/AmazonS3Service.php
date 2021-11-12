@@ -1,6 +1,6 @@
 <?php
 
-namespace Luezoid\Laravelcore\Files\Services;
+namespace Luezoid\Laravelcore\Services\Files;
 
 
 use Illuminate\Support\Facades\App;

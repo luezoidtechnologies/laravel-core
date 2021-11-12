@@ -1,6 +1,6 @@
 <?php
 
-namespace Luezoid\Laravelcore\Console\Commands;
+namespace Luezoid\Laravelcore\Console\Command;
 
 use Illuminate\Console\Command;
 
