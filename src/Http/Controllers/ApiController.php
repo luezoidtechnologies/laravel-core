@@ -11,7 +11,7 @@ namespace Luezoid\Laravelcore\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Request as Request;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -325,8 +325,8 @@ abstract class ApiController extends BaseController
     /**
      * Method which can be used as substitute for the Custom POST/PUT routes other than the resource route
      * @param $job
-     * @param null $request
-     * @param null $additionalData
+     * @param Request|null $request
+     * @param array|null $additionalData
      * @return bool|\Illuminate\Http\JsonResponse
      */
     public function handleCustomEndPoint($job, $request = null, $additionalData = null)
@@ -349,7 +349,7 @@ abstract class ApiController extends BaseController
     /**
      * Method which can be used as substitute for the Custom GET(index) route other than the resource route
      * @param $job
-     * @param null $request
+     * @param Request|null $request
      * @param array $additionalData
      * @return \Illuminate\Http\JsonResponse
      */
