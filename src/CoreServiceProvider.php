@@ -20,7 +20,6 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         $this->loadTranslationsFrom(__DIR__ . '/lang/errors.php', 'errors');
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations/2019_10_03_101111_create_files_table.php');
     }
