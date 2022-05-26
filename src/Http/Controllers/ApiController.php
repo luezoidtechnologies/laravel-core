@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Luezoid\Laravelcore\Constants\ErrorConstants;
@@ -124,7 +125,7 @@ abstract class ApiController extends BaseController
         }
         return response()->json([
             "message" => $message,
-            "data" => $data && method_exists($data, 'toArray') ? $data->toArray() : $data,
+            "data" => $data && ($data instanceof Collection) ? $data->toArray() : $data,
             "type" => $type
         ], $httpCode);
     }
