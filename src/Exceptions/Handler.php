@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
+    protected $errorResponse;
+    protected $statusCode;
     /**
      * A list of the exception types that should not be reported.
      *
@@ -45,126 +47,49 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @param \Throwable $exception
      * @return \Illuminate\Http\Response
      */
     public function render($request, \Throwable $exception)
     {
-        $errorResponse = null;
-        $statusCode = 500;
-
         if ($exception instanceof AppException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Internal Server Error",
-                'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
-                'errorDetails' => $exception->getTrace()
-            ];
-            $statusCode = $exception->getCode();
+            $this->appExceptionHandler($exception);
         } else if ($exception instanceof ValidationException) {
-            $errorDetails = [];
-            $error = $exception->getMessage();
-            if (UtilityService::is_json($exception->getMessage())) {
-                $err = json_decode($exception->getMessage());
-                $error = $err->error;
-                $errorDetails = $err->errorDetails;
-            }
-            $errorResponse = [
-                'status' => 'fail',
-                'message' => array_merge([$error], $errorDetails),
-                'data' => null,
-                'type' => ErrorConstants::TYPE_VALIDATION_ERROR
-            ];
-            $statusCode = 400;
+            $this->validationExceptionHandler($exception);
         } else if ($exception instanceof NotFoundHttpException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Resouce not found",
-                'type' => ErrorConstants::TYPE_RESOURCE_NOT_FOUND_ERROR,
-                'errorDetails' => "Resource not found"
-            ];
-            $statusCode = 404;
+            $this->notFoundHttpExceptionHandler($exception);
         } else if ($exception instanceof MethodNotAllowedHttpException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Method not allowed",
-                'type' => ErrorConstants::TYPE_METHOD_NOT_ALLOWED_ERROR,
-                'errorDetails' => "Method not allowed"
-            ];
-            $statusCode = 405;
+            $this->methodNotAllowedHttpExceptionHandler($exception);
         } else if ($exception instanceof InvalidCredentialsException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Invalid Credentials",
-                'type' => ErrorConstants::TYPE_INVALID_CREDENTIALS_ERROR,
-                'errorDetails' => $exception->getMessage()
-            ];
-            $statusCode = 401;
+            $this->invalidCredentialsExceptionHandler($exception);
         } else if ($exception instanceof AuthorizationException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Authorization Failed",
-                'type' => ErrorConstants::TYPE_AUTHORIZATION_ERROR,
-                'errorDetails' => $exception->getMessage()
-            ];
-            $statusCode = 403;
+            $this->authorizationExceptionHandler($exception);
         } else if ($exception instanceof ForbiddenException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Forbidden from performing action",
-                'type' => ErrorConstants::TYPE_FORBIDDEN_ERROR,
-                'errorDetails' => $exception->getMessage()
-            ];
-            $statusCode = 403;
+            $this->forbiddenExceptionHandler($exception);
         } else if ($exception instanceof ServiceNotImplementedException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Service Not Implemented",
-                'type' => ErrorConstants::TYPE_SERVICE_NOT_IMPLEMENTED_ERROR,
-                'errorDetails' => $exception->getMessage()
-            ];
-            $statusCode = 501;
+            $this->serviceNotImplementedExceptionHandler($exception);
         } else if ($exception instanceof BusinessLogicException) {
-            $message = $exception->getMessage();
-            if (UtilityService::is_json($exception->getMessage())) {
-                $message = json_decode($exception->getMessage());
-            };
-            $errorResponse = [
-                'error' => !empty($message) ? $message : "Business Logic Error",
-                'errorDetails' => $exception->getMessage(),
-                'type' => ErrorConstants::TYPE_BUSINESS_LOGIC_ERROR
-            ];
-            $statusCode = $exception->getCode();
+            $this->businessLogicExceptionHandler($exception);
         } else if ($exception instanceof BadRequestHttpException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
-                'type' => ErrorConstants::TYPE_BAD_REQUEST_ERROR,
-                'errorDetails' => "Bad Request"
-            ];
-            $statusCode = 400;
+            $this->badRequestHttpExceptionHandler($exception);
         } else if ($exception instanceof ThrottleRequestsException) {
-            $errorResponse = [
-                'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
-                'type' => ErrorConstants::TYPE_TOO_MANY_REQUEST_ERROR,
-                'errorDetails' => "Too many requests"
-            ];
-            $statusCode = 429;
+            $this->throttleRequestsExceptionHandler($exception);
         } else {
-            $errorResponse = [
-                'error' => $exception->getMessage(),
-                'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
-                'errorDetails' => $exception->getTrace()
-            ];
-            $statusCode = 500;
+            $this->exceptionHandler($exception);
         }
 
-        if (!env('APP_DEBUG')) {
-            unset($errorResponse['errorDetails']);
-        }
+        $this->handleLogTrace();
 
-        return response()->json($errorResponse, $statusCode);
+        return response()->json($this->errorResponse, $this->statusCode);
     }
 
 
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Illuminate\Auth\AuthenticationException $exception
+     * @param \Illuminate\Http\Request $request
+     * @param \Illuminate\Auth\AuthenticationException $exception
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
@@ -174,5 +99,146 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest(route('login'));
+    }
+
+    public function appExceptionHandler($exception)
+    {
+        $this->statusCode = $exception->getCode();
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Internal Server Error",
+            'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
+            'errorDetails' => $exception->getTrace()
+        ];
+    }
+
+    public function validationExceptionHandler($exception)
+    {
+        $errorDetails = [];
+        $error = $exception->getMessage();
+        if (UtilityService::is_json($exception->getMessage())) {
+            $err = json_decode($exception->getMessage());
+            $error = $err->error;
+            $errorDetails = $err->errorDetails;
+        }
+
+        $this->statusCode = 400;
+        $this->errorResponse = [
+            'status' => 'fail',
+            'message' => array_merge([$error], $errorDetails),
+            'data' => null,
+            'type' => ErrorConstants::TYPE_VALIDATION_ERROR
+        ];
+    }
+
+    public function notFoundHttpExceptionHandler($exception)
+    {
+        $this->statusCode = 404;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Resouce not found",
+            'type' => ErrorConstants::TYPE_RESOURCE_NOT_FOUND_ERROR,
+            'errorDetails' => "Resource not found"
+        ];
+    }
+
+    public function methodNotAllowedHttpExceptionHandler($exception)
+    {
+        $this->statusCode = 405;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Method not allowed",
+            'type' => ErrorConstants::TYPE_METHOD_NOT_ALLOWED_ERROR,
+            'errorDetails' => "Method not allowed"
+        ];
+    }
+
+    public function invalidCredentialsExceptionHandler($exception)
+    {
+        $this->statusCode = 401;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Invalid Credentials",
+            'type' => ErrorConstants::TYPE_INVALID_CREDENTIALS_ERROR,
+            'errorDetails' => $exception->getMessage()
+        ];
+    }
+
+    public function authorizationExceptionHandler($exception)
+    {
+        $this->statusCode = 403;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Authorization Failed",
+            'type' => ErrorConstants::TYPE_AUTHORIZATION_ERROR,
+            'errorDetails' => $exception->getMessage()
+        ];
+    }
+
+    public function forbiddenExceptionHandler($exception)
+    {
+        $this->statusCode = 403;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Forbidden from performing action",
+            'type' => ErrorConstants::TYPE_FORBIDDEN_ERROR,
+            'errorDetails' => $exception->getMessage()
+        ];
+    }
+
+    public function serviceNotImplementedExceptionHandler($exception)
+    {
+        $this->statusCode = 501;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Service Not Implemented",
+            'type' => ErrorConstants::TYPE_SERVICE_NOT_IMPLEMENTED_ERROR,
+            'errorDetails' => $exception->getMessage()
+        ];
+    }
+
+    public function businessLogicExceptionHandler($exception)
+    {
+        $message = $exception->getMessage();
+        if (UtilityService::is_json($exception->getMessage())) {
+            $message = json_decode($exception->getMessage());
+        }
+
+        $this->statusCode = $exception->getCode();
+        $this->errorResponse = [
+            'error' => !empty($message) ? $message : "Business Logic Error",
+            'errorDetails' => $exception->getMessage(),
+            'type' => ErrorConstants::TYPE_BUSINESS_LOGIC_ERROR
+        ];
+    }
+
+    public function badRequestHttpExceptionHandler($exception)
+    {
+        $this->statusCode = 400;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
+            'type' => ErrorConstants::TYPE_BAD_REQUEST_ERROR,
+            'errorDetails' => "Bad Request"
+        ];
+    }
+
+    public function throttleRequestsExceptionHandler($exception)
+    {
+        $this->statusCode = 429;
+        $this->errorResponse = [
+            'error' => !empty($exception->getMessage()) ? $exception->getMessage() : "Bad Request",
+            'type' => ErrorConstants::TYPE_TOO_MANY_REQUEST_ERROR,
+            'errorDetails' => "Too many requests"
+        ];
+    }
+
+    public function exceptionHandler($exception)
+    {
+        $this->statusCode = 500;
+        $this->errorResponse = [
+            'error' => $exception->getMessage(),
+            'type' => ErrorConstants::TYPE_INTERNAL_SERVER_ERROR,
+            'errorDetails' => $exception->getTrace()
+        ];
+    }
+
+    public function handleLogTrace()
+    {
+        if (!env('APP_DEBUG')) {
+            unset($this->errorResponse['errorDetails']);
+        }
     }
 }
