@@ -18,7 +18,10 @@ A few cool features of this package are:
 ## Installation
 We recommend using [Composer](https://getcomposer.org) to install this package. This package supports [Laravel](https://laravel.com) versions >= 5.x.
 
-    composer require "luezoid/laravel-core"		# For latest version of Laravel (>=7.x)
+    composer require "luezoid/laravel-core"		# For latest version of Laravel (>=10.x)
+    composer require "luezoid/laravel-core:^9.0"	# For Laravel version 9.x
+    composer require "luezoid/laravel-core:^8.0"	# For Laravel version 8.x
+    composer require "luezoid/laravel-core:^7.0"	# For Laravel version 7.x
     composer require "luezoid/laravel-core:^6.0"	# For Laravel version 6.x
     composer require "luezoid/laravel-core:^5.0"	# For Laravel version 5.x
 Next, configure your `app/Exceptions/Handler.php` and extend it with `Luezoid\Laravelcore\Exceptions\Handler`. Sample file can be seen [here](/examples/Exceptions/Handler.php).
