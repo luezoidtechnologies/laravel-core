@@ -2,7 +2,9 @@
 
 namespace Tests\Suite;
 
-use \Tests\TestCase;
+use Tests\TestCase;
+
+require_once __DIR__.'/../TestCase.php';
 
 class PostAPISuccessTest extends TestCase
 {
