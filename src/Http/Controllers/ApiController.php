@@ -250,7 +250,7 @@ abstract class ApiController extends BaseController
      */
     protected function dispatchJob($request, $job, $params)
     {
-        $result = $this->dispatch($job);
+        $result = $this->dispatchSync($job);
         return $this->standardResponse($result, $this->customMessage ? $this->customMessage : $this->defaultMessage);
     }
 
