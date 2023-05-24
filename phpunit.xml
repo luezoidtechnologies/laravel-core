@@ -6,19 +6,14 @@
 >
     <testsuites>
         <testsuite name="Unit">
-            <directory suffix="Test.php">./examples/tests/suite</directory>
+            <directory>./examples/tests/suite</directory>
         </testsuite>
     </testsuites>
-    <source>
-        <include>
-            <directory suffix=".php">./app</directory>
-        </include>
-    </source>
     <php>
-        <env name="APP_ENV" value="testbench"/>
+        <env name="APP_ENV" value="test"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
-        <env name="DB_CONNECTION" value="testbench"/>
+        <env name="DB_CONNECTION" value="test"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

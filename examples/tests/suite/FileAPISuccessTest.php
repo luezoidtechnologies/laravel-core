@@ -4,6 +4,9 @@ namespace Tests\Suite;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Luezoid\Laravelcore\Contracts\IFile;
+use Luezoid\Laravelcore\Files\Services\LocalFileUploadService;
+use Luezoid\Laravelcore\Files\Services\SaveFileToS3Service;
 use Tests\TestCase;
 require_once __DIR__.'/../TestCase.php';
 require_once __DIR__.'/../../../src/Models/File.php';
@@ -23,11 +26,11 @@ class FileAPISuccessTest extends TestCase
 
         $file = UploadedFile::fake()->image('test-image.jpg'); // Create a fake test file
 
-        $this->app->bind(\Luezoid\Laravelcore\Contracts\IFile::class, function ($app) {
+        $this->app->bind(IFile::class, function ($app) {
             if (config('file.is_local')) {
-                return $app->make(\Luezoid\Laravelcore\Files\Services\LocalFileUploadService::class);
+                return $app->make(LocalFileUploadService::class);
             }
-            return $app->make(\Luezoid\Laravelcore\Files\Services\SaveFileToS3Service::class);
+            return $app->make(SaveFileToS3Service::class);
         });
 
         $response = $this->post('/api/files', [

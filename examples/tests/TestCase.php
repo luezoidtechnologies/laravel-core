@@ -11,7 +11,6 @@ use Luezoid\Laravelcore\Http\Controllers\FileController;
 
 require_once __DIR__.'/../Controllers/MinionController.php';
 require_once __DIR__.'/../Repositories/MinionRepository.php';
-require_once __DIR__.'/../Requests/MinionCreateRequest.php';
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -32,8 +31,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
     public function defineEnvironment($app)
     {
         tap($app->make('config'), function (Repository $config) {
-            $config->set('database.default', 'testbench');
-            $config->set('database.connections.testbench', [
+            $config->set('database.default', 'test');
+            $config->set('database.connections.test', [
                 'driver'   => 'sqlite',
                 'database' => ':memory:',
                 'prefix'   => '',
@@ -44,13 +43,13 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function defineRoutes($router)
     {
         Route::resource('api/minions', MinionController::class, ['parameters' => ['minions' => 'id']]);
-        Route::post('api/files',FileController::class.'@store');
+        Route::post('api/files',[FileController::class, 'store']);
     }
 
     protected function defineDatabaseMigrations()
     {
         $this->loadMigrationsFrom(__DIR__ . '/../migrations');
-        $this->artisan('migrate', ['--database' => 'testbench'])->run();
+        $this->artisan('migrate', ['--database' => 'test'])->run();
     }
 
 
