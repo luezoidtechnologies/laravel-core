@@ -7,6 +7,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Luezoid\Http\Controllers\MinionController;
+use Luezoid\Laravelcore\Http\Controllers\FileController;
+
 require_once __DIR__.'/../Controllers/MinionController.php';
 require_once __DIR__.'/../Repositories/MinionRepository.php';
 require_once __DIR__.'/../Requests/MinionCreateRequest.php';
@@ -42,6 +44,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function defineRoutes($router)
     {
         Route::resource('api/minions', MinionController::class, ['parameters' => ['minions' => 'id']]);
+        Route::post('api/files',FileController::class.'@store');
     }
 
     protected function defineDatabaseMigrations()
